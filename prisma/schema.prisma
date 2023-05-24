@@ -1,272 +1,267 @@
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
-    provider = "sqlserver"
-    url      = env("DATABASE_URL")
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model ZipGroup {
-    id                Int     @id(map: "PK_compCatZip") @default(autoincrement()) @map("CatZipGroupkey")
-    locationId        Int?    @map("LocationKey")
-    zipCode1          String? @map("CatZipCompareZip1") @db.VarChar(50)
-    zipCode2          String? @map("CatZipCompareZip2") @db.VarChar(50)
-    zipCode3          String? @map("CatZipCompareZip3") @db.VarChar(50)
-    zipCode4          String? @map("CatZipCompareZip4") @db.VarChar(50)
-    zipCode5          String? @map("CatZipCompareZip5") @db.VarChar(50)
-    zipCode6          String? @map("CatZipCompareZip6") @db.VarChar(50)
-    zipCode7          String? @map("CatZipCompareZip7") @db.VarChar(50)
-    zipCode8          String? @map("CatZipCompareZip8") @db.VarChar(50)
-    zipCode9          String? @map("CatZipCompareZip9") @db.VarChar(50)
-    zipCode10         String? @map("CatZipCompareZip10") @db.VarChar(50)
-    groupId           String? @map("CatZipGroupID") @db.VarChar(50)
-    CatZipCompareZips String? @db.VarChar(50)
+  id                Int     @id(map: "PK_compCatZip") @default(autoincrement()) @map("CatZipGroupkey")
+  locationId        Int?    @map("LocationKey")
+  zipCode1          String? @map("CatZipCompareZip1") @db.VarChar(50)
+  zipCode2          String? @map("CatZipCompareZip2") @db.VarChar(50)
+  zipCode3          String? @map("CatZipCompareZip3") @db.VarChar(50)
+  zipCode4          String? @map("CatZipCompareZip4") @db.VarChar(50)
+  zipCode5          String? @map("CatZipCompareZip5") @db.VarChar(50)
+  zipCode6          String? @map("CatZipCompareZip6") @db.VarChar(50)
+  zipCode7          String? @map("CatZipCompareZip7") @db.VarChar(50)
+  zipCode8          String? @map("CatZipCompareZip8") @db.VarChar(50)
+  zipCode9          String? @map("CatZipCompareZip9") @db.VarChar(50)
+  zipCode10         String? @map("CatZipCompareZip10") @db.VarChar(50)
+  groupId           String? @map("CatZipGroupID") @db.VarChar(50)
+  CatZipCompareZips String? @db.VarChar(50)
 
-    @@map("compCatZip")
+  @@map("compCatZip")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model CustomGroup {
-    id                         Int     @id(map: "PK_compSelectedGroup") @default(autoincrement()) @map("SelectedGroupKey")
-    locationId                 Int?    @map("LocationKey")
-    compareLocationId1         Int?    @map("SelectedCompareCompanyKey1")
-    compareLocationId2         Int?    @map("SelectedCompareCompanyKey2")
-    compareLocationId3         Int?    @map("SelectedCompareCompanyKey3")
-    compareLocationId4         Int?    @map("SelectedCompareCompanyKey4")
-    compareLocationId5         Int?    @map("SelectedCompareCompanyKey5")
-    compareLocationId6         Int?    @map("SelectedCompareCompanyKey6")
-    compareLocationId7         Int?    @map("SelectedCompareCompanyKey7")
-    compareLocationId8         Int?    @map("SelectedCompareCompanyKey8")
-    compareLocationId9         Int?    @map("SelectedCompareCompanyKey9")
-    compareLocationId10        Int?    @map("SelectedCompareCompanyKey10")
-    groupId                    String? @map("SelectedGroupID") @db.VarChar(50)
-    SelectedCompareCompanyKeys Int?
+  id                         Int     @id(map: "PK_compSelectedGroup") @default(autoincrement()) @map("SelectedGroupKey")
+  locationId                 Int?    @map("LocationKey")
+  compareLocationId1         Int?    @map("SelectedCompareCompanyKey1")
+  compareLocationId2         Int?    @map("SelectedCompareCompanyKey2")
+  compareLocationId3         Int?    @map("SelectedCompareCompanyKey3")
+  compareLocationId4         Int?    @map("SelectedCompareCompanyKey4")
+  compareLocationId5         Int?    @map("SelectedCompareCompanyKey5")
+  compareLocationId6         Int?    @map("SelectedCompareCompanyKey6")
+  compareLocationId7         Int?    @map("SelectedCompareCompanyKey7")
+  compareLocationId8         Int?    @map("SelectedCompareCompanyKey8")
+  compareLocationId9         Int?    @map("SelectedCompareCompanyKey9")
+  compareLocationId10        Int?    @map("SelectedCompareCompanyKey10")
+  groupId                    String? @map("SelectedGroupID") @db.VarChar(50)
+  SelectedCompareCompanyKeys Int?
 
-    @@map("compSelectedGroup")
+  @@map("compSelectedGroup")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimCard {
-    CardBrandName    String?            @db.VarChar(50)
-    CardKey          Int                @id(map: "PK_dimCard") @default(autoincrement())
-    factTransactions factTransactions[]
+  CardBrandName    String?            @db.VarChar(50)
+  CardKey          Int                @id(map: "PK_dimCard") @default(autoincrement())
+  factTransactions factTransactions[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Category {
-    id                  Int        @id(map: "PK_dimCategory") @default(autoincrement()) @map("CatKey")
-    Categories          String?    @map("Categories") @db.VarChar(50)
-    Description         String?    @map("Description") @db.VarChar(50)
-    locations           Location[]
-    segmentWithCategory SegXCat[]
+  id                  Int       @id(map: "PK_dimCategory") @default(autoincrement()) @map("CatKey")
+  Categories          String?   @map("Categories") @db.VarChar(50)
+  Description         String?   @map("Description") @db.VarChar(50)
+  segmentWithCategory SegXCat[]
 
-    @@map("dimCategory")
+  @@map("dimCategory")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model City {
-    id        Int           @id(map: "PK_dimCity") @default(autoincrement()) @map("CityKey")
-    name      String?       @map("AddressCity") @db.VarChar(50)
-    regions   dimRegion[]
-    addresses factAddress[]
+  id        Int           @id(map: "PK_dimCity") @default(autoincrement()) @map("CityKey")
+  name      String?       @map("AddressCity") @db.VarChar(50)
+  regions   dimRegion[]
+  addresses factAddress[]
 
-    @@map("dimCity")
+  @@map("dimCity")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Company {
-    id             Int        @id(map: "PK_dimCompany") @default(autoincrement()) @map("CompanyKey")
-    name           String?    @map("CompanyName") @db.VarChar(50)
-    buildingNumber String?    @map("AddressNumber") @db.VarChar(50)
-    street         String?    @map("AddressStreet") @db.VarChar(50)
-    city           String?    @map("AddressCity") @db.VarChar(50)
-    state          String?    @map("AddressState") @db.VarChar(50)
-    zip            String?    @map("AddressZip") @db.VarChar(50)
-    repFirstName   String?    @map("RepFirstName") @db.VarChar(50)
-    repLastName    String?    @map("RepLastName") @db.VarChar(50)
-    repPhone       String?    @map("RepPhone") @db.VarChar(50)
-    RepEmail       String?    @map("RepEmail") @db.VarChar(50)
-    locations      Location[]
+  id             Int     @id(map: "PK_dimCompany") @default(autoincrement()) @map("CompanyKey")
+  name           String? @map("CompanyName") @db.VarChar(50)
+  buildingNumber String? @map("AddressNumber") @db.VarChar(50)
+  street         String? @map("AddressStreet") @db.VarChar(50)
+  city           String? @map("AddressCity") @db.VarChar(50)
+  state          String? @map("AddressState") @db.VarChar(50)
+  zip            String? @map("AddressZip") @db.VarChar(50)
+  repFirstName   String? @map("RepFirstName") @db.VarChar(50)
+  repLastName    String? @map("RepLastName") @db.VarChar(50)
+  repPhone       String? @map("RepPhone") @db.VarChar(50)
+  RepEmail       String? @map("RepEmail") @db.VarChar(50)
 
-    @@map("dimCompany")
+  @@map("dimCompany")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimCredit {
-    CreditDebitKey   Int                @id(map: "PK_dimCredit")
-    CreditDebit      String?            @db.VarChar(50)
-    factTransactions factTransactions[]
+  CreditDebitKey   Int                @id(map: "PK_dimCredit")
+  CreditDebit      String?            @db.VarChar(50)
+  factTransactions factTransactions[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimCustomer {
-    CustomerKey  Int     @id(map: "PK_dimCustomer") @default(autoincrement())
-    CustomerType String? @db.VarChar(50)
+  CustomerKey  Int     @id(map: "PK_dimCustomer") @default(autoincrement())
+  CustomerType String? @db.VarChar(50)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimItem {
-    ItemKey          Int                @id(map: "PK_dimItem") @default(autoincrement())
-    ItemNo           String?            @db.VarChar(50)
-    ItemName         String?            @db.VarChar(50)
-    ItemType         String?            @db.VarChar(50)
-    BaseAdd          String?            @db.VarChar(50)
-    factItem         factItem[]
-    factTransactions factTransactions[]
+  ItemKey          Int                @id(map: "PK_dimItem") @default(autoincrement())
+  ItemNo           String?            @db.VarChar(50)
+  ItemName         String?            @db.VarChar(50)
+  ItemType         String?            @db.VarChar(50)
+  BaseAdd          String?            @db.VarChar(50)
+  factItem         factItem[]
+  factTransactions factTransactions[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Location {
-    id             Int          @id(map: "PK_dimLocation") @default(autoincrement()) @map("LocationKey")
-    companyId      Int?         @map("CompanyKey")
-    nickname       String?      @map("LocationID") @db.VarChar(50)
-    addressId      Int?         @map("AddressKey")
-    buildingNumber String?      @map("AddressNumber") @db.VarChar(50)
-    street         String?      @map("AddressStreet") @db.VarChar(50)
-    city           String?      @map("AddressCity") @db.VarChar(50)
-    state          String?      @map("AddressState") @db.VarChar(50)
-    zip            String?      @map("AddressZip") @db.VarChar(50)
-    region         String?      @map("AddressRegion") @db.VarChar(50)
-    longitude      Float?       @map("Longitude")
-    latitude       Float?       @map("Latitude")
-    index          String?      @map("Index") @db.NChar(10)
-    zipGroupId     Int?         @map("CatZipGroupID")
-    customGroupId  Int?         @map("SelectedGroupID")
-    categoryId     Int?         @map("CatKey")
-    segmentId      Int?         @map("SegKey")
-    category       Category?    @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dimLocation_dimCategory")
-    company        Company?     @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dimLocation_dimCompany")
-    segment        Segment?     @relation(fields: [segmentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dimLocation_dimSegment")
-    address        factAddress? @relation(fields: [addressId], references: [AddressKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_dimLocation_factAddress")
+  id             Int       @id(map: "PK_dimLocation") @default(autoincrement()) @map("LocationKey")
+  companyId      Int?      @map("CompanyKey")
+  nickname       String?   @map("LocationID") @db.VarChar(50)
+  addressId      Int?      @map("AddressKey")
+  buildingNumber String?   @map("AddressNumber") @db.VarChar(50)
+  street         String?   @map("AddressStreet") @db.VarChar(50)
+  city           String?   @map("AddressCity") @db.VarChar(50)
+  state          String?   @map("AddressState") @db.VarChar(50)
+  zip            String?   @map("AddressZip") @db.VarChar(50)
+  region         String?   @map("AddressRegion") @db.VarChar(50)
+  longitude      Float?    @map("Longitude")
+  latitude       Float?    @map("Latitude")
+  index          String?   @map("Index") @db.NChar(10)
+  zipGroupId     Int?      @map("CatZipGroupID")
+  customGroupId  Int?      @map("SelectedGroupID")
+  categoryId     Int?      @map("CatKey")
+  segmentId      Int?      @map("SegKey")
+  startDate    DateTime? @map("OpStartDate") @db.Date
 
-    @@map("dimLocation")
+  @@map("dimLocation")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimNumber {
-    NumberKey     Int           @id(map: "PK_dimNumber") @default(autoincrement())
-    AddressNumber String?       @db.VarChar(50)
-    factAddress   factAddress[]
+  NumberKey     Int           @id(map: "PK_dimNumber") @default(autoincrement())
+  AddressNumber String?       @db.VarChar(50)
+  factAddress   factAddress[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimRegion {
-    RegionKey  Int     @id(map: "PK_dimRegion") @default(autoincrement())
-    RegionName String? @db.VarChar(50)
-    CityKey    Int?
-    dimCity    City?   @relation(fields: [CityKey], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dimRegion_dimCity")
+  RegionKey  Int     @id(map: "PK_dimRegion") @default(autoincrement())
+  RegionName String? @db.VarChar(50)
+  CityKey    Int?
+  dimCity    City?   @relation(fields: [CityKey], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dimRegion_dimCity")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Segment {
-    id                  Int        @id(map: "PK_dimSegment") @default(autoincrement()) @map("SegmentKey")
-    name                String?    @map("SegmentName") @db.VarChar(50)
-    locations           Location[]
-    segmentWithCategory SegXCat[]
+  id                  Int       @id(map: "PK_dimSegment") @default(autoincrement()) @map("SegmentKey")
+  name                String?   @map("SegmentName") @db.VarChar(50)
+  segmentWithCategory SegXCat[]
 
-    @@map("dimSegment")
+  @@map("dimSegment")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimState {
-    StateKey     Int           @id(map: "PK_dimState") @default(autoincrement())
-    StateName    String?       @db.VarChar(50)
-    AddressState String?       @db.VarChar(50)
-    factAddress  factAddress[]
+  StateKey     Int           @id(map: "PK_dimState") @default(autoincrement())
+  StateName    String?       @db.VarChar(50)
+  AddressState String?       @db.VarChar(50)
+  factAddress  factAddress[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimStreet {
-    StreetKey     Int           @id(map: "PK_dimStreet") @default(autoincrement())
-    AddressStreet String?       @db.VarChar(50)
-    factAddress   factAddress[]
+  StreetKey     Int           @id(map: "PK_dimStreet") @default(autoincrement())
+  AddressStreet String?       @db.VarChar(50)
+  factAddress   factAddress[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model dimZip {
-    ZipKey      Int           @id(map: "PK_dimZip") @default(autoincrement())
-    AddressZip  String?       @db.VarChar(50)
-    factAddress factAddress[]
+  ZipKey      Int           @id(map: "PK_dimZip") @default(autoincrement())
+  AddressZip  String?       @db.VarChar(50)
+  factAddress factAddress[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model factAddress {
-    AddressKey       Int                @id(map: "PK_factAddress") @default(autoincrement())
-    NumberKey        Int?
-    StreetKey        Int?
-    CityKey          Int?
-    StateKey         Int?
-    ZipKey           Int?
-    Index            String?            @db.NChar(10)
-    dimLocation      Location[]
-    dimCity          City?              @relation(fields: [CityKey], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimCity")
-    dimNumber        dimNumber?         @relation(fields: [NumberKey], references: [NumberKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimNumber")
-    dimState         dimState?          @relation(fields: [StateKey], references: [StateKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimState")
-    dimStreet        dimStreet?         @relation(fields: [StreetKey], references: [StreetKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimStreet")
-    dimZip           dimZip?            @relation(fields: [ZipKey], references: [ZipKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimZip")
-    factTransactions factTransactions[]
+  AddressKey       Int                @id(map: "PK_factAddress") @default(autoincrement())
+  NumberKey        Int?
+  StreetKey        Int?
+  CityKey          Int?
+  StateKey         Int?
+  ZipKey           Int?
+  Index            String?            @db.NChar(10)
+  dimCity          City?              @relation(fields: [CityKey], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimCity")
+  dimNumber        dimNumber?         @relation(fields: [NumberKey], references: [NumberKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimNumber")
+  dimState         dimState?          @relation(fields: [StateKey], references: [StateKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimState")
+  dimStreet        dimStreet?         @relation(fields: [StreetKey], references: [StreetKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimStreet")
+  dimZip           dimZip?            @relation(fields: [ZipKey], references: [ZipKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factAddress_dimZip")
+  factTransactions factTransactions[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model factItem {
-    factItemKey Int      @id(map: "PK_factItem") @default(autoincrement())
-    ItemCost    Float?   @db.Money
-    ItemKey     Int?
-    ItemPrice   Float?   @db.Money
-    dimItem     dimItem? @relation(fields: [ItemKey], references: [ItemKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factItem_dimItem")
+  factItemKey Int      @id(map: "PK_factItem") @default(autoincrement())
+  ItemCost    Float?   @db.Money
+  ItemKey     Int?
+  ItemPrice   Float?   @db.Money
+  dimItem     dimItem? @relation(fields: [ItemKey], references: [ItemKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factItem_dimItem")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model factTransactions {
-    TransactionKey Int          @id(map: "PK_factTransactions") @default(autoincrement())
-    CompanyKey     Int?
-    PurchDate      DateTime?    @db.Date
-    PurchTime      DateTime?    @db.DateTime
-    TransactionID  String?      @db.VarChar(50)
-    ItemKey        Int?
-    ItemQty        Int?
-    ItemSalesPrice Float?       @db.Money
-    AddressKey     Int?
-    CustomerKey    Int?
-    CardKey        Int?
-    LocationKey    Int?
-    CreditDebitKey Int?
-    UniqueCustomer String?      @db.VarChar(50)
-    AddressZip     String?      @db.VarChar(50)
-    dimCard        dimCard?     @relation(fields: [CardKey], references: [CardKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_dimCard")
-    dimCredit      dimCredit?   @relation(fields: [CreditDebitKey], references: [CreditDebitKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_dimCredit")
-    dimItem        dimItem?     @relation(fields: [ItemKey], references: [ItemKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_dimItem")
-    factAddress    factAddress? @relation(fields: [AddressKey], references: [AddressKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_factAddress")
+  TransactionKey Int          @id(map: "PK_factTransactions") @default(autoincrement())
+  CompanyKey     Int?
+  PurchDate      DateTime?    @db.Date
+  PurchTime      DateTime?    @db.DateTime
+  TransactionID  String?      @db.VarChar(50)
+  ItemKey        Int?
+  ItemQty        Int?
+  ItemSalesPrice Float?       @db.Money
+  AddressKey     Int?
+  CustomerKey    Int?
+  CardKey        Int?
+  LocationKey    Int?
+  CreditDebitKey Int?
+  UniqueCustomer String?      @db.VarChar(50)
+  AddressZip     String?      @db.VarChar(50)
+  dimCard        dimCard?     @relation(fields: [CardKey], references: [CardKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_dimCard")
+  dimCredit      dimCredit?   @relation(fields: [CreditDebitKey], references: [CreditDebitKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_dimCredit")
+  dimItem        dimItem?     @relation(fields: [ItemKey], references: [ItemKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_dimItem")
+  factAddress    factAddress? @relation(fields: [AddressKey], references: [AddressKey], onDelete: NoAction, onUpdate: NoAction, map: "FK_factTransactions_factAddress")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model filterCustomer {
-    NewRepeatCustomer String? @db.VarChar(50)
-    Type              String? @db.VarChar(50)
+  NewRepeatCustomer String? @db.VarChar(50)
+  Type              String? @db.VarChar(50)
 
-    @@ignore
+  @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model SegXCat {
-    id         Int       @id(map: "PK_SegXCat") @default(autoincrement()) @map("SegXCatKey")
-    segmentId  Int?      @map("SegmentKey")
-    categoryId Int?      @map("CatKey")
-    category   Category? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SegXCat_dimCategory")
-    segment    Segment?  @relation(fields: [segmentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SegXCat_dimSegment")
+  id         Int       @id(map: "PK_SegXCat") @default(autoincrement()) @map("SegXCatKey")
+  segmentId  Int?      @map("SegmentKey")
+  categoryId Int?      @map("CatKey")
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SegXCat_dimCategory")
+  segment    Segment?  @relation(fields: [segmentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SegXCat_dimSegment")
 
-    @@map("SegXCat")
+  @@map("SegXCat")
 }
 
 model sysdiagrams {
-    name         String @db.NVarChar(128)
-    principal_id Int
-    diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B6119E6A87A") @default(autoincrement())
-    version      Int?
-    definition   Bytes?
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B6119E6A87A") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
 
-    @@unique([principal_id, name], map: "UK_principal_name")
+  @@unique([principal_id, name], map: "UK_principal_name")
 }
