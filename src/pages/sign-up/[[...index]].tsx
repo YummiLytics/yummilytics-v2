@@ -1,15 +1,9 @@
-import { SignUp, useUser } from "@clerk/nextjs";
 import type { NextPage } from "next";
-import type { SubmitHandler } from "react-hook-form";
-import { useForm } from "react-hook-form";
-
-type FormInput = {
-  firstName: string;
-};
+import Router from "next/router";
+import { SignUp, useUser } from "@clerk/nextjs";
 
 const SignUpPage: NextPage = () => {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { register, handleSubmit } = useForm<FormInput>();
+  const { isLoaded, isSignedIn } = useUser();
 
   if (!isLoaded) return null;
 
@@ -19,20 +13,13 @@ const SignUpPage: NextPage = () => {
         <SignUp />
       </div>
     );
+  } else {
+    Router.push("/dashboard").catch((err) => {
+      console.log(err);
+    });
   }
 
-  const onSubmit: SubmitHandler<FormInput> = (data) => {
-    console.log(data);
-  };
-
-  return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input {...register("firstName", {valueAsNumber: true})} />
-        <button>Submit</button>
-      </form>
-    </div>
-  );
+  return null;
 };
 
 export default SignUpPage;

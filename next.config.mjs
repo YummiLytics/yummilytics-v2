@@ -19,6 +19,15 @@ const config = {
     defaultLocale: "en",
   },
 
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/dashboard',
+        permanent: true
+      }
+    ]
+  },
 };
 
 export default config;
