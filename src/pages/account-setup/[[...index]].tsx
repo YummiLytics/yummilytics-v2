@@ -45,7 +45,7 @@ export type AccountFormInputs = {
 };
 
 const AccountSetupPage: NextPage = () => {
-  const accountSetupForm = useForm<AccountFormInputs>();
+  const accountSetupForm = useForm<AccountFormInputs>({mode: "onBlur"});
   const { register, handleSubmit, watch } = accountSetupForm;
 
   const [currentPage, setCurrentPage] = useState<SetupPage>(
@@ -62,14 +62,21 @@ const AccountSetupPage: NextPage = () => {
     ) : null;
   };
 
+  const onSubmit = (values: any) => {
+    console.log(values);
+  };
+
   return (
     <div className="flex h-full min-h-screen items-center justify-center">
-      <div className="container mx-auto mt-10 max-w-5xl rounded-md border border-gray-200 bg-white p-4 drop-shadow">
-        <CurrentSetupPage
-          page={currentPage}
-          setCurrentPage={setCurrentPage}
-          form={accountSetupForm}
-        />
+      <div className="container mx-auto mt-10 max-w-2xl rounded-md border border-gray-200 bg-white p-4 drop-shadow">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <CurrentSetupPage
+            page={currentPage}
+            setCurrentPage={setCurrentPage}
+            form={accountSetupForm}
+          />
+          <button>Submit</button>
+        </form>
       </div>
     </div>
   );
