@@ -1,10 +1,9 @@
 import React from "react";
-import type { UseFormReturn, ValidationRule } from "react-hook-form";
+import type { FieldValues, Path, ValidationRule } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-type InputFieldProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: UseFormReturn<any>;
-  name: string;
+type InputFieldProps<V extends FieldValues = FieldValues> = {
+  name: Path<V>;
   type?: string;
   label?: string;
   value?: string | number | readonly string[] | undefined;
@@ -15,7 +14,9 @@ type InputFieldProps = {
   children?: React.ReactNode;
 };
 
-const InputField = (props: InputFieldProps) => {
+const InputField = <V extends FieldValues = FieldValues>(
+  props: InputFieldProps<V>
+) => {
   const {
     name,
     type = "text",
@@ -28,7 +29,7 @@ const InputField = (props: InputFieldProps) => {
   const {
     register,
     formState: { errors },
-  } = props.form;
+  } = useFormContext<V>();
   const options = { required, ...props.options };
 
   return (
