@@ -1,4 +1,4 @@
-[
+export const allStates = [
   "AL",
   "AK",
   "AZ",
@@ -48,5 +48,11 @@
   "WA",
   "WV",
   "WI",
-  "WY"
+  "WY",
+];
+
+export const availableStates = [
+  "CO"
 ]
+
+export default availableStates;

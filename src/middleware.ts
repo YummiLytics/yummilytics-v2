@@ -5,6 +5,14 @@ import { NextResponse } from "next/server";
 
 type Auth = AuthObject & { isPublicRoute: boolean };
 
+function redirect(req: NextRequest, url: string | URL) {
+  if (url.toString().startsWith(req.url)) {
+    return NextResponse.next()
+  }
+
+  return NextResponse.redirect(url)
+}
+
 function isUserSignedIn(auth: Auth) {
   return !!auth.userId;
 }
@@ -14,16 +22,8 @@ function shouldUserSignIn(auth: Auth) {
 }
 
 function redirectUnauthorizedUser(req: NextRequest): NextResponse {
-  if (
-    req.url.startsWith(new URL("/sign-in", req.url).toString()) ||
-    req.url.startsWith(new URL("/sign-up", req.url).toString())
-  ) {
-    console.log("DON'T REDIRECT");
-    return NextResponse.next();
-  }
   const signInUrl = new URL("/sign-in", req.url);
-  signInUrl.searchParams.set("redirect_url", req.url);
-  return NextResponse.redirect(signInUrl);
+  return redirect(req, signInUrl);
 }
 
 function hasUserFinishedAccountSetup(auth: Auth) {
@@ -35,7 +35,7 @@ function hasUserFinishedAccountSetup(auth: Auth) {
 
 function redirectToAccountSetup(req: NextRequest) {
   const accountSetupUrl = new URL("/account-setup", req.url);
-  return NextResponse.redirect(accountSetupUrl);
+  return redirect(req, accountSetupUrl);
 }
 
 export default authMiddleware({

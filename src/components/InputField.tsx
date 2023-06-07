@@ -6,8 +6,10 @@ type InputFieldProps<V extends FieldValues = FieldValues> = {
   name: Path<V>;
   type?: string;
   label?: string;
-  value?: string | number | readonly string[] | undefined;
+  value?: string | number | readonly string[];
+  defaultValue?: string | number | readonly string[];
   required?: string | ValidationRule<boolean>;
+  readonly?: boolean;
   disabled?: boolean;
   options?: Record<string, unknown>;
   className?: string;
@@ -22,10 +24,19 @@ const InputField = <V extends FieldValues = FieldValues>(
     type = "text",
     label,
     value,
+    defaultValue,
     required = false,
+    readonly = false,
     disabled = false,
     className = "",
   } = props;
+
+  const formContext = useFormContext<V>();
+
+  if (formContext === null) {
+    throw Error("You must use a FormProvider so InputField can get the form context with useFormContext")
+  }
+
   const {
     register,
     formState: { errors },
@@ -45,6 +56,7 @@ const InputField = <V extends FieldValues = FieldValues>(
         <select
           {...register(name, options)}
           value={value}
+          defaultValue={defaultValue}
           aria-invalid={errors?.[name] ? "true" : "false"}
           disabled={disabled}
           className="w-full rounded border border-gray-200 bg-white p-1"
@@ -56,7 +68,9 @@ const InputField = <V extends FieldValues = FieldValues>(
           {...register(name, options)}
           type={type}
           value={value}
+          defaultValue={defaultValue}
           aria-invalid={errors?.[name] ? "true" : "false"}
+          readOnly={readonly}
           disabled={disabled}
           className="w-full rounded border border-gray-200 bg-white p-1"
         />
