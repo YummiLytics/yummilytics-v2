@@ -4,7 +4,7 @@ import InputField from "~/components/InputField";
 import states from "~/static/state-codes";
 import { z } from "zod";
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
@@ -22,15 +22,41 @@ const inputNames = {
 } as const;
 
 const companyFormSchema = z.object({
-  [inputNames.repFirstName]: z.string().min(1, "Please enter a first name").max(100).regex(nameRegex, "Please enter a valid first name"),
-  [inputNames.repLastName]: z.string().min(1, "Please enter a last name").max(100).regex(nameRegex, "Please enter a valid last name"),
-  [inputNames.repPhone]: z.string().min(1, "Please enter a phone number").regex(phoneRegex, "Please enter a valid phone number"),
-  [inputNames.companyName]: z.string().min(1, "Please enter the name of your organization").max(100),
-  [inputNames.companyAddress]: z.string().min(1, "Please enter an address for your organization").max(100),
-  [inputNames.companyCity]: z.string().min(1, "Please enter a city for your organization").max(100),
-  [inputNames.companyState]: z.string().length(2, "Please choose a state for your organization"),
-  [inputNames.companyZip]: z.string().length(5, "Please enter a 5-digit ZIP code").regex(/^\d+$/, "Please enter a valid ZIP code"),
-})
+  [inputNames.repFirstName]: z
+    .string()
+    .min(1, "Please enter a first name")
+    .max(100)
+    .regex(nameRegex, "Please enter a valid first name"),
+  [inputNames.repLastName]: z
+    .string()
+    .min(1, "Please enter a last name")
+    .max(100)
+    .regex(nameRegex, "Please enter a valid last name"),
+  [inputNames.repPhone]: z
+    .string()
+    .min(1, "Please enter a phone number")
+    .regex(phoneRegex, "Please enter a valid phone number"),
+  [inputNames.companyName]: z
+    .string()
+    .min(1, "Please enter the name of your organization")
+    .max(100),
+  [inputNames.companyAddress]: z
+    .string()
+    .min(1, "Please enter an address for your organization")
+    .max(100),
+  [inputNames.companyCity]: z
+    .string()
+    .min(1, "Please enter a city for your organization")
+    .max(100),
+  [inputNames.companyState]: z
+    .string()
+    .length(2, "Please choose a state for your organization"),
+  [inputNames.companyZip]: z
+    .string()
+    .length(5, "Please enter a 5-digit ZIP code")
+    .regex(/^\d+$/, "Please enter a valid ZIP code")
+    .transform((val) => parseInt(val)),
+});
 
 type CompanyFormInputs = z.infer<typeof companyFormSchema>;
 
@@ -71,14 +97,8 @@ const CompanyInfo = () => (
       Tell Us About Your Company
     </h2>
     <div className="mx-auto flex flex-col gap-4">
-      <CompanyInputField
-        name={inputNames.companyName}
-        label="Company Name"
-      />
-      <CompanyInputField
-        name={inputNames.companyAddress}
-        label="Address"
-      />
+      <CompanyInputField name={inputNames.companyName} label="Company Name" />
+      <CompanyInputField name={inputNames.companyAddress} label="Address" />
       <div className="flex gap-4">
         <CompanyInputField
           name={inputNames.companyCity}
@@ -112,12 +132,12 @@ const CompanyCreationPage: SetupFormPage = (props) => {
   const { setCurrentPage } = props;
   const companyForm = useForm<CompanyFormInputs>({
     mode: "onBlur",
-    resolver: zodResolver(companyFormSchema)
-  })
+    resolver: zodResolver(companyFormSchema),
+  });
 
-   const onSubmit: SubmitHandler<CompanyFormInputs> = values => {
-    console.log("Submit Company Form", values)
-  }
+  const onSubmit: SubmitHandler<CompanyFormInputs> = (values) => {
+    console.log("Submit Company Form", values);
+  };
 
   return (
     <>

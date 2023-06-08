@@ -1,9 +1,7 @@
-import { z } from "zod";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
-export const locationRouter = createTRPCRouter({
+export const companyRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.location.findMany();
+    return ctx.prisma.company.findMany();
   }),
 });
