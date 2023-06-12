@@ -1,6 +1,6 @@
 import type { AuthObject } from "@clerk/backend";
 import { authMiddleware } from "@clerk/nextjs";
-import type { NextRequest } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 type Auth = AuthObject & { isPublicRoute: boolean };
@@ -38,8 +38,17 @@ function redirectToAccountSetup(req: NextRequest) {
   return redirect(req, accountSetupUrl);
 }
 
+function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
+  return NextResponse.next()
+}
+
 export default authMiddleware({
   afterAuth(auth, req, _evt) {
+    if (req.url.includes("trpc")) {
+      // TODO: Maybe add trpc authorization??
+      return trpcMiddleware(auth, req, _evt);
+    }
+
     if (shouldUserSignIn(auth)) {
       return redirectUnauthorizedUser(req);
     }
