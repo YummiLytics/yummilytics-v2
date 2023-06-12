@@ -5,6 +5,9 @@ import states from "~/static/state-codes";
 import { z } from "zod";
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { api } from "~/utils/api";
+import { CompanySchemaType } from "~/types/schemas";
+import { useUser } from "@clerk/nextjs";
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
@@ -134,9 +137,39 @@ const CompanyCreationPage: SetupFormPage = (props) => {
     mode: "onBlur",
     resolver: zodResolver(companyFormSchema),
   });
+  const { user } = useUser();
+  const createCompany = api.companies.create
+      .useMutation({
+        onSuccess: (res) => {
+          console.log("Success!", res);
+        },
+        onError: (e) => {
+          console.log("Error!", e);
+        },
+    }).mutate
 
   const onSubmit: SubmitHandler<CompanyFormInputs> = (values) => {
-    console.log("Submit Company Form", values);
+    const mappedValues: Omit<CompanySchemaType, "id"> = {
+      name: values.companyName,
+      buildingNumber: values.companyAddress
+        .substring(0, values.companyAddress.indexOf(" "))
+        .trim(),
+      street: values.companyAddress
+        .substring(
+          values.companyAddress.indexOf(" ") + 1,
+          values.companyAddress.length
+        )
+        .trim(),
+      city: values.companyCity,
+      state: values.companyState,
+      zip: values.companyZip.toString(),
+      repFirstName: values.repFirstName,
+      repLastName: values.repLastName,
+      repEmail: user?.primaryEmailAddress?.toString() || "",
+      repPhone: values.repPhone,
+    };
+
+      createCompany(mappedValues);
   };
 
   return (

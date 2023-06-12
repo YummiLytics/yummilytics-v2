@@ -44,9 +44,9 @@ function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
 
 export default authMiddleware({
   afterAuth(auth, req, _evt) {
+
     if (req.url.includes("trpc")) {
-      // TODO: Maybe add trpc authorization??
-      return trpcMiddleware(auth, req, _evt);
+      return NextResponse.next();
     }
 
     if (shouldUserSignIn(auth)) {

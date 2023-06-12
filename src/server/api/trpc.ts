@@ -93,3 +93,10 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+const isAuthorized = t.middleware(async ({ ctx, next}) => {
+  //TODO: acutally auth trpc requests
+  return next()
+})
+
+export const protectedProcedure = t.procedure.use(isAuthorized)

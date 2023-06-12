@@ -89,7 +89,7 @@ model Company {
   repFirstName   String? @map("RepFirstName") @db.VarChar(50)
   repLastName    String? @map("RepLastName") @db.VarChar(50)
   repPhone       String? @map("RepPhone") @db.VarChar(50)
-  RepEmail       String? @map("RepEmail") @db.VarChar(50)
+  repEmail       String? @map("RepEmail") @db.VarChar(50)
 
   @@map("dimCompany")
 }
