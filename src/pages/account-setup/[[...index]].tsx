@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { useState } from "react";
 import type { NextPage } from "next";
 import CompanyCreationPage from "./CompanyCreationPage";
+import { api } from "~/utils/api";
 
 type SetupFormPageProps = {
   setCurrentPage: (page: SetupPage) => void;
@@ -25,6 +26,10 @@ const AccountSetupPage: NextPage = () => {
   };
 
   const CurrentSetupPage = setupPages?.[currentPage] ?? null;
+
+  const { data } = api.example.hello.useQuery({text: "Please"})
+  
+  console.log(data)
 
   return (
     <div className="flex h-full min-h-screen items-center justify-center">

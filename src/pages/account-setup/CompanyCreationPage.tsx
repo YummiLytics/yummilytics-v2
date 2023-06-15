@@ -172,6 +172,7 @@ const CompanyCreationPage: SetupFormPage = (props) => {
       createCompany(mappedValues);
   };
 
+
   return (
     <>
       <div className="mx-auto flex w-11/12 flex-col gap-8 md:p-8">

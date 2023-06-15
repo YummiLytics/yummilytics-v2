@@ -21,5 +21,4 @@ export const companyRouter = createTRPCRouter({
       data: input
     })
   })
-    
 });
