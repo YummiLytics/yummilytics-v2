@@ -45,7 +45,7 @@ function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
 export default authMiddleware({
   afterAuth(auth, req, _evt) {
 
-    if (req.url.includes("trpc")) {
+    if (req.url.includes("trpc") || req.url.includes("api")) {
       return NextResponse.next();
     }
 
