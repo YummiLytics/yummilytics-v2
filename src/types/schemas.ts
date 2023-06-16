@@ -15,3 +15,7 @@ export const CompanySchema = z.object({
 })
 
 export type CompanySchemaType = z.infer<typeof CompanySchema>
+
+export const NewUserSchema = z.object({
+  clerkId: z.string()
+})

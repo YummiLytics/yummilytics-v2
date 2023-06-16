@@ -1,4 +1,3 @@
-import { Company } from "@prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { CompanySchema } from "~/types/schemas";
@@ -17,7 +16,7 @@ export const companyRouter = createTRPCRouter({
   }),
 
   create: protectedProcedure.input(CompanySchema.omit({id: true})).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.company.create({
+    return await ctx.prisma.company.create({
       data: input
     })
   })

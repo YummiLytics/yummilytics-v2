@@ -63,6 +63,8 @@ const companyFormSchema = z.object({
 
 type CompanyFormInputs = z.infer<typeof companyFormSchema>;
 
+type NewCompany = Omit<CompanySchemaType, "id">
+
 const CompanyInputField = InputField<CompanyFormInputs>;
 
 const PersonalInfo = () => (
@@ -138,18 +140,19 @@ const CompanyCreationPage: SetupFormPage = (props) => {
     resolver: zodResolver(companyFormSchema),
   });
   const { user } = useUser();
-  const createCompany = api.companies.create
-      .useMutation({
-        onSuccess: (res) => {
-          console.log("Success!", res);
-        },
-        onError: (e) => {
-          console.log("Error!", e);
-        },
-    }).mutate
 
-  const onSubmit: SubmitHandler<CompanyFormInputs> = (values) => {
-    const mappedValues: Omit<CompanySchemaType, "id"> = {
+  const createCompanyMutation = api.companies.create
+    .useMutation({
+      onSuccess: (res) => {
+        console.log("Success!", res);
+        //setCurrentPage(SetupPage)
+      },
+      onError: (e) => {
+        console.log("Error!", e);
+      },
+    });
+
+  const mapValues = (values: CompanyFormInputs): NewCompany => ({
       name: values.companyName,
       buildingNumber: values.companyAddress
         .substring(0, values.companyAddress.indexOf(" "))
@@ -167,11 +170,12 @@ const CompanyCreationPage: SetupFormPage = (props) => {
       repLastName: values.repLastName,
       repEmail: user?.primaryEmailAddress?.toString() || "",
       repPhone: values.repPhone,
-    };
+    })
 
-      createCompany(mappedValues);
+  const onSubmit: SubmitHandler<CompanyFormInputs> = (values) => {
+    const mappedValues = mapValues(values);
+    createCompanyMutation.mutate(mappedValues);
   };
-
 
   return (
     <>
