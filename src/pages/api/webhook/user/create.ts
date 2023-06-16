@@ -9,6 +9,7 @@ export default async function handler(req: NextRequest, res: NextApiResponse) {
     evt: UserWebhookEvent
   }
   const event = (req.body as unknown as ClerkWebhookRequestBody)?.evt;
+  console.log(req);
   if (!!event) {
     switch (event?.type) {
       case "user.created":
