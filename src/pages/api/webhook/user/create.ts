@@ -9,13 +9,16 @@ export default async function handler(req: NextRequest, res: NextApiResponse) {
     evt: UserWebhookEvent
   }
   const event = (req.body as unknown as ClerkWebhookRequestBody)?.evt;
-  switch (event.type) {
-    case "user.created":
-      await prisma.user.create({
-        data: {
-          clerkId: event.data.id,
-        },
-      });
-      return res.status(200).json({ req: req.headers });
+  if (!!event) {
+    switch (event?.type) {
+      case "user.created":
+        await prisma.user.create({
+          data: {
+            clerkId: event?.data?.id,
+          },
+        });
+        return res.status(200).json({ req: req.headers });
+    }
   }
+  return res.status(400).json({})
 }
