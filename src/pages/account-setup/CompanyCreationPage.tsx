@@ -1,12 +1,12 @@
 import React from "react";
 import { type SetupFormPage } from "./[[...index]]";
-import InputField from "~/components/InputField";
+import FormInput from "~/components/InputField";
 import states from "~/static/state-codes";
 import { z } from "zod";
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "~/utils/api";
-import { CompanySchemaType } from "~/types/schemas";
+import { CompanyType } from "~/types/schemas";
 import { useUser } from "@clerk/nextjs";
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
@@ -63,9 +63,9 @@ const companyFormSchema = z.object({
 
 type CompanyFormInputs = z.infer<typeof companyFormSchema>;
 
-type NewCompany = Omit<CompanySchemaType, "id">
+type NewCompany = Omit<CompanyType, "id">
 
-const CompanyInputField = InputField<CompanyFormInputs>;
+const CompanyFormInput = FormInput<CompanyFormInputs>;
 
 const PersonalInfo = () => (
   <div>
@@ -74,19 +74,19 @@ const PersonalInfo = () => (
     </h2>
     <div className="mx-auto flex flex-col gap-4">
       <div className="flex w-full gap-8">
-        <CompanyInputField
+        <CompanyFormInput
           name={inputNames.repFirstName}
           label="First Name"
           className="flex-1"
         />
-        <CompanyInputField
+        <CompanyFormInput
           name={inputNames.repLastName}
           label="Last Name"
           className="flex-1"
         />
       </div>
       <div>
-        <CompanyInputField
+        <CompanyFormInput
           name={inputNames.repPhone}
           label="Phone Number"
           type="tel"
@@ -102,15 +102,15 @@ const CompanyInfo = () => (
       Tell Us About Your Company
     </h2>
     <div className="mx-auto flex flex-col gap-4">
-      <CompanyInputField name={inputNames.companyName} label="Company Name" />
-      <CompanyInputField name={inputNames.companyAddress} label="Address" />
+      <CompanyFormInput name={inputNames.companyName} label="Company Name" />
+      <CompanyFormInput name={inputNames.companyAddress} label="Address" />
       <div className="flex gap-4">
-        <CompanyInputField
+        <CompanyFormInput
           name={inputNames.companyCity}
           label="City"
           className="flex-1"
         />
-        <CompanyInputField
+        <CompanyFormInput
           name={inputNames.companyState}
           label="State"
           type="select"
@@ -122,8 +122,8 @@ const CompanyInfo = () => (
               {state}
             </option>
           ))}
-        </CompanyInputField>
-        <CompanyInputField
+        </CompanyFormInput>
+        <CompanyFormInput
           name={inputNames.companyZip}
           label="ZIP"
           className="w-3/12"

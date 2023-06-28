@@ -14,7 +14,7 @@ export const CompanySchema = z.object({
   repEmail: z.string(),
 })
 
-export type CompanySchemaType = z.infer<typeof CompanySchema>
+export type CompanyType = z.infer<typeof CompanySchema>
 
 export const NewUserSchema = z.object({
   clerkId: z.string()
