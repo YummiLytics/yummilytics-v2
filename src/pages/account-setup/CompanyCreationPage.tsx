@@ -1,13 +1,18 @@
 import React from "react";
 import { type SetupFormPage } from "./[[...index]]";
-import FormInput from "~/components/InputField";
+import FormInput from "~/components/form/FormInput";
 import states from "~/static/state-codes";
 import { z } from "zod";
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "~/utils/api";
-import { CompanyType } from "~/types/schemas";
+import type { CompanyType } from "~/types";
 import { useUser } from "@clerk/nextjs";
+import FormSelect from "~/components/form/FormSelect";
+import { SelectItem } from "~/components/ui/select";
+import { Button } from "~/components/ui/button";
+import { useToast } from "~/components/ui/use-toast";
+import { Toast } from "~/components/ui/toast";
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
@@ -63,12 +68,12 @@ const companyFormSchema = z.object({
 
 type CompanyFormInputs = z.infer<typeof companyFormSchema>;
 
-type NewCompany = Omit<CompanyType, "id">
+type NewCompany = Omit<CompanyType, "id">;
 
 const CompanyFormInput = FormInput<CompanyFormInputs>;
 
 const PersonalInfo = () => (
-  <div>
+  <section>
     <h2 className="mb-4 text-center text-lg font-bold text-gray-600">
       Tell Us About You
     </h2>
@@ -93,11 +98,11 @@ const PersonalInfo = () => (
         />
       </div>
     </div>
-  </div>
+  </section>
 );
 
 const CompanyInfo = () => (
-  <div>
+  <section>
     <h2 className="mb-4 text-center text-lg font-bold text-gray-600">
       Tell Us About Your Company
     </h2>
@@ -110,27 +115,26 @@ const CompanyInfo = () => (
           label="City"
           className="flex-1"
         />
-        <CompanyFormInput
+        <FormSelect<CompanyFormInputs>
           name={inputNames.companyState}
           label="State"
-          type="select"
           defaultValue="CO"
           className="w-2/12 min-w-fit"
         >
           {states.map((state) => (
-            <option key={state} value={state}>
+            <SelectItem key={state} value={state}>
               {state}
-            </option>
+            </SelectItem>
           ))}
-        </CompanyFormInput>
+        </FormSelect>
         <CompanyFormInput
           name={inputNames.companyZip}
           label="ZIP"
-          className="w-3/12"
+          className="w-2/12"
         />
       </div>
     </div>
-  </div>
+  </section>
 );
 
 const CompanyCreationPage: SetupFormPage = (props) => {
@@ -140,37 +144,37 @@ const CompanyCreationPage: SetupFormPage = (props) => {
     resolver: zodResolver(companyFormSchema),
   });
   const { user } = useUser();
-
-  const createCompanyMutation = api.companies.create
-    .useMutation({
-      onSuccess: (res) => {
-        console.log("Success!", res);
-        //setCurrentPage(SetupPage)
-      },
-      onError: (e) => {
-        console.log("Error!", e);
-      },
-    });
+  const { toast } = useToast();
 
   const mapValues = (values: CompanyFormInputs): NewCompany => ({
-      name: values.companyName,
-      buildingNumber: values.companyAddress
-        .substring(0, values.companyAddress.indexOf(" "))
-        .trim(),
-      street: values.companyAddress
-        .substring(
-          values.companyAddress.indexOf(" ") + 1,
-          values.companyAddress.length
-        )
-        .trim(),
-      city: values.companyCity,
-      state: values.companyState,
-      zip: values.companyZip.toString(),
-      repFirstName: values.repFirstName,
-      repLastName: values.repLastName,
-      repEmail: user?.primaryEmailAddress?.toString() || "",
-      repPhone: values.repPhone,
-    })
+    name: values.companyName,
+    buildingNumber: values.companyAddress
+      .substring(0, values.companyAddress.indexOf(" "))
+      .trim(),
+    street: values.companyAddress
+      .substring(
+        values.companyAddress.indexOf(" ") + 1,
+        values.companyAddress.length
+      )
+      .trim(),
+    city: values.companyCity,
+    state: values.companyState,
+    zip: values.companyZip.toString(),
+    repFirstName: values.repFirstName,
+    repLastName: values.repLastName,
+    repEmail: user?.primaryEmailAddress?.toString() || "",
+    repPhone: values.repPhone,
+  });
+
+  const createCompanyMutation = api.companies.create.useMutation({
+    onSuccess: (res) => {
+      console.log("Success!", res);
+      //setCurrentPage(SetupPage)
+    },
+    onError: (e) => {
+      console.log("Error!", e);
+    },
+  });
 
   const onSubmit: SubmitHandler<CompanyFormInputs> = (values) => {
     const mappedValues = mapValues(values);
@@ -178,17 +182,26 @@ const CompanyCreationPage: SetupFormPage = (props) => {
   };
 
   return (
-    <>
-      <div className="mx-auto flex w-11/12 flex-col gap-8 md:p-8">
-        <FormProvider {...companyForm}>
-          <form onSubmit={companyForm.handleSubmit(onSubmit)}>
-            <PersonalInfo />
-            <CompanyInfo />
-            <button>Submit</button>
-          </form>
-        </FormProvider>
-      </div>
-    </>
+    <FormProvider {...companyForm}>
+      <form onSubmit={companyForm.handleSubmit(onSubmit)}>
+        <div className="mx-auto flex w-11/12 flex-col gap-8 md:p-8">
+          <PersonalInfo />
+          <CompanyInfo />
+          <Button
+            className="self-end"
+            onClick={() => {
+              toast({
+                title: "Success!",
+                description: "Successfully created your company.",
+                duration: 2000
+              });
+            }}
+          >
+            Submit
+          </Button>
+        </div>
+      </form>
+    </FormProvider>
   );
 };
 

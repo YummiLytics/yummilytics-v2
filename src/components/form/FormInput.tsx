@@ -14,7 +14,7 @@ type FormInputProps<TFieldValues extends FieldValues = FieldValues> = {
   disabled?: boolean;
   options?: Record<string, unknown>;
   className?: string;
-  containerClassName?: string;
+  innerClass?: string;
 };
 
 const FormInput = <TFieldValues extends FieldValues = FieldValues>(
@@ -30,7 +30,7 @@ const FormInput = <TFieldValues extends FieldValues = FieldValues>(
     readOnly = false,
     disabled = false,
     className,
-    containerClassName,
+    innerClass,
   } = props;
 
   const formContext = useFormContext<TFieldValues>();
@@ -46,7 +46,7 @@ const FormInput = <TFieldValues extends FieldValues = FieldValues>(
   const options = { required, ...props.options };
 
   return (
-    <div className={containerClassName}>
+    <div className={className}>
       <label
         htmlFor={name}
         className="mb-1 block text-sm font-semibold text-gray-600"
@@ -62,7 +62,7 @@ const FormInput = <TFieldValues extends FieldValues = FieldValues>(
         aria-invalid={!!errors?.[name]}
         readOnly={readOnly}
         disabled={disabled}
-        className={className}
+        className={innerClass}
       />
       {errors?.[name] && (
         <p className="pt-0.5 text-xs text-red-600">

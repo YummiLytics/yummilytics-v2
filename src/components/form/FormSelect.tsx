@@ -1,20 +1,33 @@
 import React from "react";
-import type { FieldValues, Path, ValidationRule } from "react-hook-form";
+import {
+  Controller,
+  type FieldValues,
+  type Path,
+  type PathValue,
+  type ValidationRule,
+} from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import { Select } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { ScrollArea } from "../ui/scroll-area";
 
 type FormSelectProps<TFieldValues extends FieldValues = FieldValues> = {
   name: Path<TFieldValues>;
   label?: string;
-  value?: string;
-  defaultValue?: string ;
+  value?: PathValue<TFieldValues, Path<TFieldValues>>;
+  defaultValue?: PathValue<TFieldValues, Path<TFieldValues>>;
   required?: string | ValidationRule<boolean>;
   readOnly?: boolean;
   disabled?: boolean;
   options?: Record<string, unknown>;
+  placeholder?: string;
   className?: string;
-  containerClassName?: string;
-  children: React.ReactNode
+  innerClass?: string;
+  children: React.ReactNode;
 };
 
 const FormSelect = <TFieldValues extends FieldValues = FieldValues>(
@@ -23,30 +36,31 @@ const FormSelect = <TFieldValues extends FieldValues = FieldValues>(
   const {
     name,
     label,
-    value,
     defaultValue,
     required = false,
-    readOnly = false,
     disabled = false,
+    placeholder,
     className,
-    containerClassName,
+    innerClass,
     children,
   } = props;
 
   const formContext = useFormContext<TFieldValues>();
 
   if (formContext === null) {
-    throw Error("You must use a FormProvider so FormInput can get the form context with useFormContext")
+    throw Error(
+      "You must use a FormProvider so FormInput can get the form context with useFormContext"
+    );
   }
 
   const {
-    register,
+    control,
     formState: { errors },
   } = useFormContext<TFieldValues>();
   const options = { required, ...props.options };
 
   return (
-    <div className={containerClassName}>
+    <div className={className}>
       <label
         htmlFor={name}
         className="mb-1 block text-sm font-semibold text-gray-600"
@@ -54,16 +68,30 @@ const FormSelect = <TFieldValues extends FieldValues = FieldValues>(
         {label}
         {required && <span className="ml-0.5 text-red-600">*</span>}
       </label>
-      <Select
-        {...register(name, options)}
-        value={value}
+      <Controller
+        control={control}
+        name={name}
+        rules={options}
         defaultValue={defaultValue}
-        aria-invalid={!!errors?.[name]}
-        disabled={disabled}
-        
-      >
-        {children}
-      </Select>
+        render={({ field: { onChange, value, ref } }) => {
+          return (
+            <Select
+              value={value}
+              aria-invalid={!!errors?.[name]}
+              disabled={disabled}
+              onValueChange={(val: string) => onChange(val as typeof value)}
+            >
+              <SelectTrigger className={innerClass}>
+                <SelectValue placeholder={placeholder ?? "Select"} />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]" ref={ref}>
+                <ScrollArea>{children}</ScrollArea>
+              </SelectContent>
+            </Select>
+          );
+        }}
+      />
+
       {errors?.[name] && (
         <p className="pt-0.5 text-xs text-red-600">
           {errors?.[name]?.message?.toString()}

@@ -7,10 +7,10 @@ type Auth = AuthObject & { isPublicRoute: boolean };
 
 function redirect(req: NextRequest, url: string | URL) {
   if (url.toString().startsWith(req.url)) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
-  return NextResponse.redirect(url)
+  return NextResponse.redirect(url);
 }
 
 function isUserSignedIn(auth: Auth) {
@@ -39,12 +39,11 @@ function redirectToAccountSetup(req: NextRequest) {
 }
 
 function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export default authMiddleware({
   afterAuth(auth, req, _evt) {
-
     if (req.url.includes("trpc") || req.url.includes("api")) {
       return NextResponse.next();
     }
