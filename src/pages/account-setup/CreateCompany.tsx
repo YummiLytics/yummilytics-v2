@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { SetupPage, type SetupFormPage } from "./[[...index]]";
 import FormInput from "~/components/form/FormInput";
 import states from "~/static/state-codes";
@@ -7,7 +7,6 @@ import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "~/utils/api";
 import type { CompanyType } from "~/types";
-import { useUser } from "@clerk/nextjs";
 import FormSelect from "~/components/form/FormSelect";
 import { SelectItem } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
@@ -136,25 +135,16 @@ const CompanyInfo = () => (
   </section>
 );
 
-const CompanyCreationPage: SetupFormPage = (props) => {
-  const { setCurrentPage } = props;
+const CreateCompany: SetupFormPage = (props) => {
+  const { setCurrentPage, user, userData } = props;
 
   const companyForm = useForm<CompanyFormInputs>({
     mode: "onBlur",
     resolver: zodResolver(companyFormSchema),
   });
 
-  const { user, isLoaded, isSignedIn } = useUser();
   const { toast } = useToast();
   const ctx = api.useContext();
-
-  const { data: dbUser } = api.user.getByClerkId.useQuery(user?.id ?? "");
-
-  useEffect(() => {
-    if (dbUser?.companyId != null) {
-      setCurrentPage(SetupPage.CREATE_LOCATION);
-    }
-  }, [dbUser, setCurrentPage]);
 
   const createDBUser = api.user.create.useMutation({
     onSuccess: () => {
@@ -172,6 +162,7 @@ const CompanyCreationPage: SetupFormPage = (props) => {
         duration: 3000,
         variant: "success",
       });
+      setCurrentPage(SetupPage.CREATE_LOCATION);
     },
     onError: (e) => {
       console.log("Error!", e);
@@ -184,18 +175,6 @@ const CompanyCreationPage: SetupFormPage = (props) => {
       });
     },
   });
-
-  if (!isLoaded) {
-    return <p>Loading</p>;
-  }
-
-  if (!isSignedIn) {
-    return <p>Not allowed</p>;
-  }
-
-  if (dbUser?.companyId != null) {
-    return null;
-  }
 
   const mapValues = (values: CompanyFormInputs): NewCompany => ({
     name: values.companyName,
@@ -222,7 +201,7 @@ const CompanyCreationPage: SetupFormPage = (props) => {
     const mappedValues = mapValues(values);
 
     const newUser =
-      dbUser ?? (await createDBUser.mutateAsync({ clerkId: user.id }));
+      userData ?? (await createDBUser.mutateAsync({ clerkId: user.id }));
     const newCompany = await createCompanyMutation.mutateAsync(mappedValues);
 
     assignCompany.mutate({ userId: newUser.id, companyId: newCompany.id });
@@ -241,4 +220,4 @@ const CompanyCreationPage: SetupFormPage = (props) => {
   );
 };
 
-export default CompanyCreationPage;
+export default CreateCompany;

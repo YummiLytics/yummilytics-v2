@@ -1,6 +1,5 @@
 import type { AuthObject } from "@clerk/backend";
 import { authMiddleware } from "@clerk/nextjs";
-import { BaseNextResponse } from "next/dist/server/base-http";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -27,22 +26,13 @@ function redirectUnauthorizedUser(req: NextRequest): NextResponse {
   return redirect(req, signInUrl);
 }
 
-function hasUserFinishedAccountSetup(auth: Auth) {
-  return (
-    auth.user?.privateMetadata?.companyId != null &&
-    auth.user?.privateMetadata?.companyId != undefined
-  );
-}
-
-function redirectToAccountSetup(req: NextRequest) {
-  const accountSetupUrl = new URL("/account-setup", req.url);
-  return redirect(req, accountSetupUrl);
-}
-
-export  function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
+export function trpcMiddleware(
+  _auth: Auth,
+  _req: NextRequest,
+  _event: NextFetchEvent
+) {
   return NextResponse.next();
 }
-
 
 export default authMiddleware({
   afterAuth(auth, req, _evt) {
@@ -52,12 +42,6 @@ export default authMiddleware({
 
     if (shouldUserSignIn(auth)) {
       return redirectUnauthorizedUser(req);
-    }
-
-    if (isUserSignedIn(auth)) {
-      if (!hasUserFinishedAccountSetup(auth)) {
-        return redirectToAccountSetup(req);
-      }
     }
 
     return NextResponse.next();
