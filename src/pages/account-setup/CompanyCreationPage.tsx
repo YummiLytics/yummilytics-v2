@@ -1,5 +1,5 @@
-import React from "react";
-import { type SetupFormPage } from "./[[...index]]";
+import React, { useEffect } from "react";
+import { SetupPage, type SetupFormPage } from "./[[...index]]";
 import FormInput from "~/components/form/FormInput";
 import states from "~/static/state-codes";
 import { z } from "zod";
@@ -12,7 +12,6 @@ import FormSelect from "~/components/form/FormSelect";
 import { SelectItem } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
-import { Toast } from "~/components/ui/toast";
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
@@ -74,7 +73,7 @@ const CompanyFormInput = FormInput<CompanyFormInputs>;
 
 const PersonalInfo = () => (
   <section>
-    <h2 className="mb-4 text-center text-lg font-bold text-gray-600">
+    <h2 className="mb-4 text-center text-lg font-bold text-sky-700">
       Tell Us About You
     </h2>
     <div className="mx-auto flex flex-col gap-4">
@@ -103,7 +102,7 @@ const PersonalInfo = () => (
 
 const CompanyInfo = () => (
   <section>
-    <h2 className="mb-4 text-center text-lg font-bold text-gray-600">
+    <h2 className="mb-4 text-center text-lg font-bold text-sky-700">
       Tell Us About Your Company
     </h2>
     <div className="mx-auto flex flex-col gap-4">
@@ -139,24 +138,77 @@ const CompanyInfo = () => (
 
 const CompanyCreationPage: SetupFormPage = (props) => {
   const { setCurrentPage } = props;
+
   const companyForm = useForm<CompanyFormInputs>({
     mode: "onBlur",
     resolver: zodResolver(companyFormSchema),
   });
-  const { user } = useUser();
+
+  const { user, isLoaded, isSignedIn } = useUser();
   const { toast } = useToast();
+  const ctx = api.useContext();
+
+  const { data: dbUser } = api.user.getByClerkId.useQuery(user?.id ?? "");
+
+  useEffect(() => {
+    if (dbUser?.companyId != null) {
+      setCurrentPage(SetupPage.CREATE_LOCATION);
+    }
+  }, [dbUser, setCurrentPage]);
+
+  const createDBUser = api.user.create.useMutation({
+    onSuccess: () => {
+      void ctx.user.invalidate();
+    },
+  });
+
+  const createCompanyMutation = api.companies.create.useMutation();
+
+  const assignCompany = api.user.assignCompanyId.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "Successfully created your company.",
+        duration: 3000,
+        variant: "success",
+      });
+    },
+    onError: (e) => {
+      console.log("Error!", e);
+      toast({
+        title: "There was a problem...",
+        description:
+          "There was an issue setting up your company. Please try again.",
+        duration: 3000,
+        variant: "destructive",
+      });
+    },
+  });
+
+  if (!isLoaded) {
+    return <p>Loading</p>;
+  }
+
+  if (!isSignedIn) {
+    return <p>Not allowed</p>;
+  }
+
+  if (dbUser?.companyId != null) {
+    return null;
+  }
 
   const mapValues = (values: CompanyFormInputs): NewCompany => ({
     name: values.companyName,
     buildingNumber: values.companyAddress
+      .trim()
       .substring(0, values.companyAddress.indexOf(" "))
       .trim(),
     street: values.companyAddress
+      .trim()
       .substring(
         values.companyAddress.indexOf(" ") + 1,
         values.companyAddress.length
-      )
-      .trim(),
+      ),
     city: values.companyCity,
     state: values.companyState,
     zip: values.companyZip.toString(),
@@ -166,39 +218,23 @@ const CompanyCreationPage: SetupFormPage = (props) => {
     repPhone: values.repPhone,
   });
 
-  const createCompanyMutation = api.companies.create.useMutation({
-    onSuccess: (res) => {
-      console.log("Success!", res);
-      //setCurrentPage(SetupPage)
-    },
-    onError: (e) => {
-      console.log("Error!", e);
-    },
-  });
-
-  const onSubmit: SubmitHandler<CompanyFormInputs> = (values) => {
+  const onSubmit: SubmitHandler<CompanyFormInputs> = async (values) => {
     const mappedValues = mapValues(values);
-    createCompanyMutation.mutate(mappedValues);
+
+    const newUser =
+      dbUser ?? (await createDBUser.mutateAsync({ clerkId: user.id }));
+    const newCompany = await createCompanyMutation.mutateAsync(mappedValues);
+
+    assignCompany.mutate({ userId: newUser.id, companyId: newCompany.id });
   };
 
   return (
     <FormProvider {...companyForm}>
       <form onSubmit={companyForm.handleSubmit(onSubmit)}>
-        <div className="mx-auto flex w-11/12 flex-col gap-8 md:p-8">
+        <div className="mx-auto flex flex-col gap-8 md:p-8">
           <PersonalInfo />
           <CompanyInfo />
-          <Button
-            className="self-end"
-            onClick={() => {
-              toast({
-                title: "Success!",
-                description: "Successfully created your company.",
-                duration: 2000
-              });
-            }}
-          >
-            Submit
-          </Button>
+          <Button className="w-2/12 self-end">Next</Button>
         </div>
       </form>
     </FormProvider>

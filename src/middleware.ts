@@ -1,5 +1,6 @@
 import type { AuthObject } from "@clerk/backend";
 import { authMiddleware } from "@clerk/nextjs";
+import { BaseNextResponse } from "next/dist/server/base-http";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -38,9 +39,10 @@ function redirectToAccountSetup(req: NextRequest) {
   return redirect(req, accountSetupUrl);
 }
 
-function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
+export  function trpcMiddleware(auth: Auth, req: NextRequest, event: NextFetchEvent) {
   return NextResponse.next();
 }
+
 
 export default authMiddleware({
   afterAuth(auth, req, _evt) {

@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { useState } from "react";
 import type { NextPage } from "next";
 import CompanyCreationPage from "./CompanyCreationPage";
+import CreateLocation from "./CreateLocation";
 
 type SetupFormPageProps = {
   setCurrentPage: (page: SetupPage) => void;
@@ -13,6 +14,7 @@ export type SetupFormPage<P = NonNullable<unknown>> = ComponentType<
 
 export const enum SetupPage {
   CREATE_COMPANY = "CREATE_COMPANY",
+  CREATE_LOCATION = "CREATE_LOCATION"
 }
 
 const AccountSetupPage: NextPage = () => {
@@ -22,6 +24,7 @@ const AccountSetupPage: NextPage = () => {
 
   const setupPages: { [P in SetupPage]: SetupFormPage } = {
     [SetupPage.CREATE_COMPANY]: CompanyCreationPage,
+    [SetupPage.CREATE_LOCATION]: CreateLocation
   };
 
   const CurrentSetupPage = setupPages?.[currentPage] ?? null;
