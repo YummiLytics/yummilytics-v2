@@ -1,16 +1,16 @@
 import React from "react";
-import { SetupPage, type SetupFormPage } from "./[[...index]]";
-import FormInput from "~/components/form/FormInput";
-import states from "~/static/state-codes";
 import { z } from "zod";
-import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "~/utils/api";
-import type { CompanyType } from "~/types";
+import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
+import { type CompanyType, type SetupFormPage } from "~/types";
+import { SetupPage } from "~/types/enums";
 import FormSelect from "~/components/form/FormSelect";
+import FormInput from "~/components/form/FormInput";
 import { SelectItem } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
+import { api } from "~/utils/api";
+import states from "~/static/state-codes"
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
@@ -99,41 +99,43 @@ const PersonalInfo = () => (
   </section>
 );
 
-const CompanyInfo = () => (
-  <section>
-    <h2 className="mb-4 text-center text-lg font-bold text-sky-700">
-      Tell Us About Your Company
-    </h2>
-    <div className="mx-auto flex flex-col gap-4">
-      <CompanyFormInput name={inputNames.companyName} label="Company Name" />
-      <CompanyFormInput name={inputNames.companyAddress} label="Address" />
-      <div className="flex gap-4">
-        <CompanyFormInput
-          name={inputNames.companyCity}
-          label="City"
-          className="flex-1"
-        />
-        <FormSelect<CompanyFormInputs>
-          name={inputNames.companyState}
-          label="State"
-          defaultValue="CO"
-          className="w-2/12 min-w-fit"
-        >
-          {states.map((state) => (
-            <SelectItem key={state} value={state}>
-              {state}
-            </SelectItem>
-          ))}
-        </FormSelect>
-        <CompanyFormInput
-          name={inputNames.companyZip}
-          label="ZIP"
-          className="w-2/12"
-        />
+const CompanyInfo = () => {
+  return (
+    <section>
+      <h2 className="mb-4 text-center text-lg font-bold text-sky-700">
+        Tell Us About Your Company
+      </h2>
+      <div className="mx-auto flex flex-col gap-4">
+        <CompanyFormInput name={inputNames.companyName} label="Company Name" />
+        <CompanyFormInput name={inputNames.companyAddress} label="Address" />
+        <div className="flex gap-4">
+          <CompanyFormInput
+            name={inputNames.companyCity}
+            label="City"
+            className="flex-1"
+          />
+          <FormSelect<CompanyFormInputs>
+            name={inputNames.companyState}
+            label="State"
+            defaultValue="CO"
+            className="w-2/12 min-w-fit"
+          >
+            {states.map((state) => (
+              <SelectItem key={state} value={state}>
+                {state}
+              </SelectItem>
+            ))}
+          </FormSelect>
+          <CompanyFormInput
+            name={inputNames.companyZip}
+            label="ZIP"
+            className="w-2/12"
+          />
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const CreateCompany: SetupFormPage = (props) => {
   const { setCurrentPage, user, userData } = props;

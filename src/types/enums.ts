@@ -1,0 +1,4 @@
+export const enum SetupPage {
+  CREATE_COMPANY = "CREATE_COMPANY",
+  CREATE_LOCATION = "CREATE_LOCATION",
+}

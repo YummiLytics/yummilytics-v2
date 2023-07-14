@@ -1,28 +1,13 @@
-import { type ComponentType, useEffect } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import type { NextPage } from "next";
 import CreateCompany from "./CreateCompany";
 import CreateFirstLocation from "./CreateFirstLocation";
-import type { UserResource } from "@clerk/types";
-import type { User } from "@prisma/client";
 import { SignedIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
-
-type SetupFormPageProps = {
-  setCurrentPage: (page: SetupPage) => void;
-  user: UserResource;
-  userData: User | null | undefined;
-};
-
-export type SetupFormPage<P = NonNullable<unknown>> = ComponentType<
-  SetupFormPageProps & P
->;
-
-export const enum SetupPage {
-  CREATE_COMPANY = "CREATE_COMPANY",
-  CREATE_LOCATION = "CREATE_LOCATION",
-}
+import { type SetupFormPage } from "~/types";
+import { SetupPage } from "~/types/enums";
 
 const setupPages: { [P in SetupPage]: SetupFormPage } = {
   [SetupPage.CREATE_COMPANY]: CreateCompany,
