@@ -10,63 +10,65 @@ import { SelectItem } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/utils/api";
-import states from "~/static/state-codes"
+import states from "~/static/state-codes";
+import { useUser } from "@clerk/nextjs";
+
+type CompanyFormInputs = z.infer<typeof companyFormSchema>;
+type NewCompany = Omit<CompanyType, "id">;
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
   /^(1|\+1)?(?:-|\s)?\(?(\d{3})\)?(?:\s|-)?(\d{3})(?:-|\s)?(\d{4})$/;
 
-const inputNames = {
+const companyInputs = {
   repFirstName: "repFirstName",
   repLastName: "repLastName",
   repPhone: "repPhone",
-  companyName: "companyName",
-  companyAddress: "companyAddress",
-  companyCity: "companyCity",
-  companyState: "companyState",
-  companyZip: "companyZip",
+  name: "companyName",
+  address: "companyAddress",
+  addressSecondary: "companyAddressSecondary",
+  city: "companyCity",
+  state: "companyState",
+  zip: "companyZip",
 } as const;
 
 const companyFormSchema = z.object({
-  [inputNames.repFirstName]: z
+  [companyInputs.repFirstName]: z
     .string()
     .min(1, "Please enter a first name")
     .max(100)
     .regex(nameRegex, "Please enter a valid first name"),
-  [inputNames.repLastName]: z
+  [companyInputs.repLastName]: z
     .string()
     .min(1, "Please enter a last name")
     .max(100)
     .regex(nameRegex, "Please enter a valid last name"),
-  [inputNames.repPhone]: z
+  [companyInputs.repPhone]: z
     .string()
     .min(1, "Please enter a phone number")
     .regex(phoneRegex, "Please enter a valid phone number"),
-  [inputNames.companyName]: z
+  [companyInputs.name]: z
     .string()
     .min(1, "Please enter the name of your organization")
     .max(100),
-  [inputNames.companyAddress]: z
+  [companyInputs.address]: z
     .string()
     .min(1, "Please enter an address for your organization")
     .max(100),
-  [inputNames.companyCity]: z
+  [companyInputs.addressSecondary]: z.string().max(100),
+  [companyInputs.city]: z
     .string()
     .min(1, "Please enter a city for your organization")
     .max(100),
-  [inputNames.companyState]: z
+  [companyInputs.state]: z
     .string()
     .length(2, "Please choose a state for your organization"),
-  [inputNames.companyZip]: z
+  [companyInputs.zip]: z
     .string()
     .length(5, "Please enter a 5-digit ZIP code")
     .regex(/^\d+$/, "Please enter a valid ZIP code")
     .transform((val) => parseInt(val)),
 });
-
-type CompanyFormInputs = z.infer<typeof companyFormSchema>;
-
-type NewCompany = Omit<CompanyType, "id">;
 
 const CompanyFormInput = FormInput<CompanyFormInputs>;
 
@@ -78,19 +80,19 @@ const PersonalInfo = () => (
     <div className="mx-auto flex flex-col gap-4">
       <div className="flex w-full gap-8">
         <CompanyFormInput
-          name={inputNames.repFirstName}
+          name={companyInputs.repFirstName}
           label="First Name"
           className="flex-1"
         />
         <CompanyFormInput
-          name={inputNames.repLastName}
+          name={companyInputs.repLastName}
           label="Last Name"
           className="flex-1"
         />
       </div>
       <div>
         <CompanyFormInput
-          name={inputNames.repPhone}
+          name={companyInputs.repPhone}
           label="Phone Number"
           type="tel"
         />
@@ -106,16 +108,20 @@ const CompanyInfo = () => {
         Tell Us About Your Company
       </h2>
       <div className="mx-auto flex flex-col gap-4">
-        <CompanyFormInput name={inputNames.companyName} label="Company Name" />
-        <CompanyFormInput name={inputNames.companyAddress} label="Address" />
+        <CompanyFormInput name={companyInputs.name} label="Company Name" />
+        <CompanyFormInput name={companyInputs.address} label="Address" />
+        <CompanyFormInput
+          name={companyInputs.addressSecondary}
+          label="Address Line 2 (Optional)"
+        />
         <div className="flex gap-4">
           <CompanyFormInput
-            name={inputNames.companyCity}
+            name={companyInputs.city}
             label="City"
             className="flex-1"
           />
           <FormSelect<CompanyFormInputs>
-            name={inputNames.companyState}
+            name={companyInputs.state}
             label="State"
             defaultValue="CO"
             className="w-2/12 min-w-fit"
@@ -127,7 +133,7 @@ const CompanyInfo = () => {
             ))}
           </FormSelect>
           <CompanyFormInput
-            name={inputNames.companyZip}
+            name={companyInputs.zip}
             label="ZIP"
             className="w-2/12"
           />
@@ -138,7 +144,8 @@ const CompanyInfo = () => {
 };
 
 const CreateCompany: SetupFormPage = (props) => {
-  const { setCurrentPage, user, userData } = props;
+  const { setCurrentPage, user: userData } = props;
+  const { user, isSignedIn } = useUser();
 
   const companyForm = useForm<CompanyFormInputs>({
     mode: "onBlur",
@@ -156,27 +163,11 @@ const CreateCompany: SetupFormPage = (props) => {
 
   const createCompanyMutation = api.companies.create.useMutation();
 
-  const assignCompany = api.user.assignCompanyId.useMutation({
-    onSuccess: () => {
-      toast({
-        title: "Success!",
-        description: "Successfully created your company.",
-        duration: 3000,
-        variant: "success",
-      });
-      setCurrentPage(SetupPage.CREATE_LOCATION);
-    },
-    onError: (e) => {
-      console.log("Error!", e);
-      toast({
-        title: "There was a problem...",
-        description:
-          "There was an issue setting up your company. Please try again.",
-        duration: 3000,
-        variant: "destructive",
-      });
-    },
-  });
+  const assignCompany = api.user.assignCompanyId.useMutation();
+
+  if (!isSignedIn) {
+    return null;
+  }
 
   const mapValues = (values: CompanyFormInputs): NewCompany => ({
     name: values.companyName,
@@ -189,7 +180,8 @@ const CreateCompany: SetupFormPage = (props) => {
       .substring(
         values.companyAddress.indexOf(" ") + 1,
         values.companyAddress.length
-      ),
+      )
+      .concat(", ", values.companyAddressSecondary.trim()),
     city: values.companyCity,
     state: values.companyState,
     zip: values.companyZip.toString(),
@@ -206,7 +198,30 @@ const CreateCompany: SetupFormPage = (props) => {
       userData ?? (await createDBUser.mutateAsync({ clerkId: user.id }));
     const newCompany = await createCompanyMutation.mutateAsync(mappedValues);
 
-    assignCompany.mutate({ userId: newUser.id, companyId: newCompany.id });
+    assignCompany.mutate(
+      { userId: newUser.id, companyId: newCompany.id },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success!",
+            description: "Successfully created your company.",
+            duration: 3000,
+            variant: "success",
+          });
+          setCurrentPage(SetupPage.CREATE_LOCATION);
+        },
+        onError: (e) => {
+          console.log("Error!", e);
+          toast({
+            title: "There was a problem...",
+            description:
+              "There was an issue setting up your company. Please try again.",
+            duration: 3000,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   return (

@@ -4,7 +4,7 @@
  *
  * We also create a few inference helpers for input and output types.
  */
-import { httpBatchLink, loggerLink } from "@trpc/client";
+import { createTRPCProxyClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
@@ -18,7 +18,7 @@ const getBaseUrl = () => {
 };
 
 /** A set of type-safe react-query hooks for your tRPC API. */
-export const api = createTRPCNext<AppRouter>({
+const trpcConfig = {
   config() {
     return {
       /**
@@ -51,7 +51,10 @@ export const api = createTRPCNext<AppRouter>({
    * @see https://trpc.io/docs/nextjs#ssr-boolean-default-false
    */
   ssr: false,
-});
+}
+
+export const api = createTRPCNext<AppRouter>(trpcConfig);
+export const apiProxy = createTRPCProxyClient<AppRouter>(trpcConfig.config())
 
 /**
  * Inference helper for inputs.

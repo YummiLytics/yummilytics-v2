@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CompanySchema = z.object({
-  id: z.number(),
+  id: z.number().nullable(),
   name: z.string(),
   buildingNumber: z.string(),
   street: z.string(),
@@ -17,3 +17,5 @@ export const CompanySchema = z.object({
 export const NewUserSchema = z.object({
   clerkId: z.string()
 })
+
+

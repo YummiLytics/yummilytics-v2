@@ -1,13 +1,12 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { NextPage } from "next";
-import CreateCompany from "./CreateCompany";
-import CreateFirstLocation from "./CreateFirstLocation";
-import { SignedIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
-import { api } from "~/utils/api";
+import { SignedIn, useUser } from "@clerk/nextjs";
 import { type SetupFormPage } from "~/types";
 import { SetupPage } from "~/types/enums";
+import { api } from "~/utils/api";
+import CreateCompany from "./CreateCompany";
+import CreateFirstLocation from "./CreateFirstLocation";
 
 const setupPages: { [P in SetupPage]: SetupFormPage } = {
   [SetupPage.CREATE_COMPANY]: CreateCompany,
@@ -18,38 +17,27 @@ const AccountSetupPage: NextPage = () => {
   const [currentPage, setCurrentPage] = useState<SetupPage | null>(null);
 
   const router = useRouter();
-  const { user, isLoaded, isSignedIn } = useUser();
-  const { data: userData, isFetched } = api.user.getByClerkId.useQuery(
-    user?.id ?? ""
+  const { user: clerkUser, isLoaded, isSignedIn } = useUser();
+  const { data: user, isFetched } = api.user.getByClerkId.useQuery(
+    clerkUser?.id ?? ""
   );
 
+  const isReady = isLoaded && isFetched && isSignedIn;
+
   useEffect(() => {
-    if (!isLoaded || !isFetched || currentPage != null) {
-      return;
-    }
-
-    if (!isSignedIn) {
-      router.push("/sign-in").catch((e) => console.log(e));
-    }
-
-    if (userData?.companyId != null) {
+    if (isReady && user?.companyId != null) {
       router.push("/dashboard").catch((e) => console.log(e));
       return;
     }
+  });
 
-    setCurrentPage(SetupPage.CREATE_COMPANY);
-  }, [
-    isLoaded,
-    isFetched,
-    currentPage,
-    userData?.companyId,
-    router,
-    isSignedIn,
-  ]);
+  useEffect(() => {
+    if (isReady && currentPage == null) {
+      setCurrentPage(SetupPage.CREATE_LOCATION);
+    }
+  }, [isReady, currentPage]);
 
-  const CurrentSetupPage = currentPage ? setupPages?.[currentPage] : null;
-
-  if (!isLoaded || !isSignedIn || CurrentSetupPage == null) {
+  if (!isReady || currentPage == null) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <p>Loading...</p>
@@ -57,15 +45,13 @@ const AccountSetupPage: NextPage = () => {
     );
   }
 
+  const CurrentSetupPage = setupPages[currentPage];
+
   return (
     <SignedIn>
-      <div className="flex h-full min-h-screen items-center justify-center">
-        <div className="container mx-auto mt-10 max-w-2xl rounded-md border border-gray-200 bg-white p-4 drop-shadow">
-          <CurrentSetupPage
-            setCurrentPage={setCurrentPage}
-            user={user}
-            userData={userData}
-          />
+      <div className="flex h-full min-h-screen items-center justify-center py-2">
+        <div className="container mx-auto max-w-2xl rounded-md border border-gray-200 bg-white p-4 drop-shadow">
+          <CurrentSetupPage setCurrentPage={setCurrentPage} user={user} />
         </div>
       </div>
     </SignedIn>
