@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { NewUserSchema } from "~/types/schemas";
+import { UserSchema } from "~/types/schemas";
 
 export const userRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -8,17 +8,22 @@ export const userRouter = createTRPCRouter({
   }),
 
   getByClerkId: publicProcedure
-    .input(z.string())
+    .input(
+      z.object({ id: z.string() })
+    )
     .query(async ({ ctx, input }) => {
       return await ctx.prisma.user.findFirst({
         where: {
-          clerkId: input,
+          clerkId: input.id,
+        },
+        include: {
+          company: true,
         },
       });
     }),
 
   create: protectedProcedure
-    .input(NewUserSchema)
+    .input(UserSchema.omit({ id: true }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.prisma.user.create({
         data: {

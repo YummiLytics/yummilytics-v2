@@ -70,7 +70,7 @@ const companyFormSchema = z.object({
     .transform((val) => parseInt(val)),
 });
 
-const CompanyFormInput = FormInput<CompanyFormInputs>;
+const CompanyInput = FormInput<CompanyFormInputs>;
 
 const PersonalInfo = () => (
   <section>
@@ -79,19 +79,19 @@ const PersonalInfo = () => (
     </h2>
     <div className="mx-auto flex flex-col gap-4">
       <div className="flex w-full gap-8">
-        <CompanyFormInput
+        <CompanyInput
           name={companyInputs.repFirstName}
           label="First Name"
           className="flex-1"
         />
-        <CompanyFormInput
+        <CompanyInput
           name={companyInputs.repLastName}
           label="Last Name"
           className="flex-1"
         />
       </div>
       <div>
-        <CompanyFormInput
+        <CompanyInput
           name={companyInputs.repPhone}
           label="Phone Number"
           type="tel"
@@ -108,14 +108,14 @@ const CompanyInfo = () => {
         Tell Us About Your Company
       </h2>
       <div className="mx-auto flex flex-col gap-4">
-        <CompanyFormInput name={companyInputs.name} label="Company Name" />
-        <CompanyFormInput name={companyInputs.address} label="Address" />
-        <CompanyFormInput
+        <CompanyInput name={companyInputs.name} label="Company Name" />
+        <CompanyInput name={companyInputs.address} label="Address" />
+        <CompanyInput
           name={companyInputs.addressSecondary}
           label="Address Line 2 (Optional)"
         />
         <div className="flex gap-4">
-          <CompanyFormInput
+          <CompanyInput
             name={companyInputs.city}
             label="City"
             className="flex-1"
@@ -132,7 +132,7 @@ const CompanyInfo = () => {
               </SelectItem>
             ))}
           </FormSelect>
-          <CompanyFormInput
+          <CompanyInput
             name={companyInputs.zip}
             label="ZIP"
             className="w-2/12"

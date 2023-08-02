@@ -14,8 +14,25 @@ export const CompanySchema = z.object({
   repEmail: z.string(),
 })
 
-export const NewUserSchema = z.object({
-  clerkId: z.string()
+export const UserSchema = z.object({
+  id: z.number(),
+  clerkId: z.string(),
+  companyId: z.number().optional(),
 })
 
-
+export const LocationSchema = z.object({
+  id: z.number(),
+  companyId: z.number(),
+  nickname: z.string(),
+  buildingNumber: z.string(),
+  street: z.string(),
+  city: z.string(),
+  state: z.string(),
+  zip: z.string(),
+  index: z.string(),
+  zipGroupId: z.number(),
+  customGroupId: z.number(),
+  categoryId: z.number(),
+  segmentId: z.number(),
+  startDate: z.date()
+})

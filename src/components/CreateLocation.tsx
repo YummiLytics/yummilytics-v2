@@ -1,13 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { useForm, type SubmitHandler, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import availableStates from "~/static/state-codes";
 import { api } from "~/utils/api";
-import MultiStepper, { Step, useMultiStepperState } from "./ui/mutlistepper";
+import MultiStepper, {
+  useMultiStepperState,
+  createSteps,
+} from "./ui/mutlistepper";
 import { Button } from "./ui/button";
+import CreateLocationForm from "./CreateLocation/CreateLocationForm";
 
-type LocationFormInputs = z.infer<typeof newLocationFormSchema>;
+export type LocationFormInputs = z.infer<typeof newLocationFormSchema>;
+export type LocationFormInputNames = typeof locationInputs;
 
 const locationInputs = {
   name: "locationName",
@@ -28,7 +33,12 @@ const newLocationFormSchema = z.object({
     .string()
     .min(1, "Please enter a location name")
     .max(100),
-  [locationInputs.startYear]: z.number().gt(1900).lte(new Date().getFullYear()),
+  [locationInputs.startYear]: z.coerce
+    .number()
+    .gte(1900, { message: "Please a choose a year no earlier than 1900" })
+    .lte(new Date().getFullYear(), {
+      message: "Please choose the current year or a past year.",
+    }),
   [locationInputs.address]: z
     .string()
     .min(1, "Please enter an address for your organization")
@@ -85,7 +95,7 @@ const useCreateLocationResolver = () => {
 };
 
 const CreateLocation = () => {
-  const { step, setStep, nextStep, prevStep } = useMultiStepperState()
+  const { step, setStep, nextStep, prevStep } = useMultiStepperState();
   const resolver = useCreateLocationResolver();
 
   const locationForm = useForm<LocationFormInputs>({
@@ -94,25 +104,31 @@ const CreateLocation = () => {
   });
 
   const onSubmit: SubmitHandler<LocationFormInputs> = (values) => {
-    console.log(values)
-  }
+    console.log(values);
+  };
+
+  const steps = createSteps([
+    {
+      title: "Location Information",
+      component: <CreateLocationForm inputs={locationInputs} />,
+    },
+    { title: "Category & Zip Codes", component: <span>Step 2</span> },
+    { title: "Custom Benchmark Group", component: <span>Step 3</span> },
+  ]);
+
+  console.log(locationForm.getValues());
 
   return (
     <FormProvider {...locationForm}>
       <form onSubmit={locationForm.handleSubmit(onSubmit)}>
         <MultiStepper step={step} setStep={setStep}>
-          <Step title="Location Information">
-            Step 1
-          </Step>
-          <Step title="Category & Zip Codes">
-            Step 2
-          </Step>
-          <Step title="Custom Benchmark Group">
-            Step 3
-          </Step>
+          {steps}
         </MultiStepper>
+        <Button onClick={prevStep}>Prev</Button>
+        <Button onClick={nextStep}>Next</Button>
       </form>
     </FormProvider>
-  )};
+  );
+};
 
 export default CreateLocation;

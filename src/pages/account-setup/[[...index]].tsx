@@ -18,14 +18,14 @@ const AccountSetupPage: NextPage = () => {
 
   const router = useRouter();
   const { user: clerkUser, isLoaded, isSignedIn } = useUser();
-  const { data: user, isFetched } = api.user.getByClerkId.useQuery(
-    clerkUser?.id ?? ""
-  );
+  const { data: user, isFetched } = api.user.getByClerkId.useQuery({
+    id: clerkUser?.id ?? "",
+  });
 
   const isReady = isLoaded && isFetched && isSignedIn;
 
   useEffect(() => {
-    if (isReady && user?.companyId != null) {
+    if (isReady && user?.companyId != null && (currentPage === SetupPage.CREATE_COMPANY)) {
       router.push("/dashboard").catch((e) => console.log(e));
       return;
     }
