@@ -1,5 +1,5 @@
 import { type ComponentType } from "react";
-import type { User } from "@prisma/client";
+import type { Company, User } from "@prisma/client";
 import type { SetupPage } from "./enums";
 
 export type SetupFormPage<P = NonNullable<unknown>> = ComponentType<
@@ -12,3 +12,8 @@ export type SetupFormPage<P = NonNullable<unknown>> = ComponentType<
 export type Must<T> = {
   [P in keyof T]-?: NonNullable<T[P]>
 }
+
+export type UserWithRelations = User & {
+  company: Company | null;
+};
+
