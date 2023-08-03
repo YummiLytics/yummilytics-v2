@@ -132,8 +132,16 @@ const CreateLocation = () => {
         <MultiStepper step={step} setStep={setStep}>
           {steps}
         </MultiStepper>
-        <Button onClick={prevStep}>Prev</Button>
-        <Button onClick={nextStep}>Next</Button>
+        <div className="flex w-full justify-between">
+          <span>
+            {hasPrev() && <Button onClick={() => prevStep()}>Back</Button>}
+          </span>
+          <span>
+            {hasNext(steps) && (
+              <Button onClick={() => nextStep(steps.length)}>Next</Button>
+            )}
+          </span>
+        </div>
       </form>
     </FormProvider>
   );
