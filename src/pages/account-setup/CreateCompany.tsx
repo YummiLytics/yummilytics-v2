@@ -2,7 +2,7 @@ import React from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
-import { type CompanyType, type SetupFormPage } from "~/types";
+import type { Must, SetupFormPage } from "~/types";
 import { SetupPage } from "~/types/enums";
 import FormSelect from "~/components/form/FormSelect";
 import FormInput from "~/components/form/FormInput";
@@ -12,9 +12,10 @@ import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/utils/api";
 import states from "~/static/state-codes";
 import { useUser } from "@clerk/nextjs";
+import { type Company } from "@prisma/client";
 
 type CompanyFormInputs = z.infer<typeof companyFormSchema>;
-type NewCompany = Omit<CompanyType, "id">;
+type NewCompany = Must<Omit<Company, "id">>;
 
 const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
