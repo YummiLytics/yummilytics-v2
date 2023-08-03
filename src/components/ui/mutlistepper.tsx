@@ -1,6 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
 
+type StepObject = { title: string; component: React.ReactNode };
+
 type StepProps = {
   title: string;
   order?: number;
@@ -11,6 +13,7 @@ type MultiStepperProps = {
   step: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
   showTitles?: boolean;
+  disableAutoState?: boolean;
   children:
     | React.ReactElement<StepProps, React.JSXElementConstructor<StepProps>>
     | React.ReactElement<StepProps, React.JSXElementConstructor<StepProps>>[];
@@ -19,20 +22,48 @@ type MultiStepperProps = {
 export const useMultiStepperState = () => {
   const [step, setStep] = useState(0);
 
-  function nextStep() {
-    setStep(step + 1);
+  function nextStep(
+    numOfSteps?: number | StepObject[] | React.ReactElement<StepProps>[]
+  ) {
+    if (numOfSteps == null) {
+      setStep(step + 1);
+      return;
+    }
+
+    if (hasNext(numOfSteps)) {
+      setStep(step + 1);
+    }
   }
 
-  function prevStep() {
-    setStep(step - 1);
+  function prevStep(noCheck?: boolean) {
+    if (noCheck) {
+      setStep(step - 1);
+      return;
+    }
+
+    if (hasPrev()) {
+      setStep(step - 1);
+    }
   }
 
-  return { step, setStep, nextStep, prevStep };
+  function hasNext(
+    numOfSteps: number | StepObject[] | React.ReactElement<StepProps>[]
+  ) {
+    if (Array.isArray(numOfSteps)) {
+      return step < numOfSteps.length - 1;
+    } else {
+      return step < numOfSteps - 1;
+    }
+  }
+
+  function hasPrev() {
+    return step > 0;
+  }
+
+  return { step, setStep, nextStep, prevStep, hasNext, hasPrev };
 };
 
-export const createSteps = (
-  steps: { title: string; component: React.ReactNode }[]
-) => {
+export const createSteps = (steps: StepObject[]) => {
   return steps.map((step, index) => (
     <Step key={index} title={step.title}>
       {step.component}
@@ -43,7 +74,13 @@ export const createSteps = (
 export const Step = ({ children }: StepProps) => <>{children}</>;
 
 const MultiStepper = (props: MultiStepperProps) => {
-  const { step = 0, setStep, children, showTitles = false } = props;
+  const {
+    step = 0,
+    setStep,
+    children,
+    showTitles = false,
+    disableAutoState = false,
+  } = props;
   const allSteps = !Array.isArray(children)
     ? [children]
     : [...children].sort(
@@ -58,10 +95,10 @@ const MultiStepper = (props: MultiStepperProps) => {
       : step;
 
   useEffect(() => {
-    if (step !== currentStep) {
+    if (step !== currentStep && !disableAutoState) {
       setStep(currentStep);
     }
-  }, [step, setStep, currentStep, children]);
+  }, [step, setStep, currentStep, children, disableAutoState]);
 
   const stepComponent = allSteps[currentStep];
   const title = stepComponent?.props.title;
