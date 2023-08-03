@@ -10,6 +10,7 @@ import MultiStepper, {
 } from "./ui/mutlistepper";
 import { Button } from "./ui/button";
 import CreateLocationForm from "./CreateLocation/CreateLocationForm";
+import { useUser } from "@clerk/nextjs";
 
 export type LocationFormInputs = z.infer<typeof newLocationFormSchema>;
 export type LocationFormInputNames = typeof locationInputs;
@@ -95,7 +96,12 @@ const useCreateLocationResolver = () => {
 };
 
 const CreateLocation = () => {
-  const { step, setStep, nextStep, prevStep } = useMultiStepperState();
+  const { user: clerkUser, isLoaded: isClerkLoaded, isSignedIn } = useUser();
+  const { data: user, isFetched: isUserFetched } =
+    api.user.getByClerkId.useQuery({ id: clerkUser?.id ?? "" });
+
+  const { step, setStep, nextStep, prevStep, hasPrev, hasNext } =
+    useMultiStepperState();
   const resolver = useCreateLocationResolver();
 
   const locationForm = useForm<LocationFormInputs>({
@@ -107,16 +113,18 @@ const CreateLocation = () => {
     console.log(values);
   };
 
+  if (!isClerkLoaded || !isUserFetched || !isSignedIn || !user) {
+    return null;
+  }
+
   const steps = createSteps([
     {
       title: "Location Information",
-      component: <CreateLocationForm inputs={locationInputs} />,
+      component: <CreateLocationForm user={user} inputs={locationInputs} />,
     },
     { title: "Category & Zip Codes", component: <span>Step 2</span> },
     { title: "Custom Benchmark Group", component: <span>Step 3</span> },
   ]);
-
-  console.log(locationForm.getValues());
 
   return (
     <FormProvider {...locationForm}>

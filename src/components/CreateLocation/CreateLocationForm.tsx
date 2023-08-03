@@ -4,26 +4,18 @@ import {
   type LocationFormInputNames,
 } from "../CreateLocation";
 import FormInput from "../form/FormInput";
-import { useUser } from "@clerk/nextjs";
-import { api } from "~/utils/api";
 import FormSelect from "../form/FormSelect";
 import { SelectItem } from "../ui/select";
 import states from "~/static/state-codes";
-import { Company } from "@prisma/client";
 import { defaultCompany } from "~/types/defaults";
+import type { UserWithRelations } from "~/types";
 
 type CreateLocationFormProps = {
+  user: UserWithRelations;
   inputs: LocationFormInputNames;
 };
 
-const CreateLocationForm = ({ inputs }: CreateLocationFormProps) => {
-  const { user: clerkUser, isLoaded: isClerkLoaded, isSignedIn } = useUser();
-  const { data: user, isFetched: isUserFetched } =
-    api.user.getByClerkId.useQuery({ id: clerkUser?.id ?? "" });
-
-  if (!isClerkLoaded || !isUserFetched || !isSignedIn) {
-    return null;
-  }
+const CreateLocationForm = ({ user, inputs }: CreateLocationFormProps) => {
 
   const userCompany = user?.company || defaultCompany;
 
