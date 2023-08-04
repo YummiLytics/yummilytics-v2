@@ -1,7 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useCallback } from "react";
-import { useForm, type SubmitHandler, FormProvider } from "react-hook-form";
-import { z } from "zod";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import z from "zod";
 import availableStates from "~/static/state-codes";
 import { api } from "~/utils/api";
 import MultiStepper, {
@@ -11,107 +9,110 @@ import MultiStepper, {
 import { Button } from "./ui/button";
 import CreateLocationForm from "./CreateLocation/CreateLocationForm";
 import { useUser } from "@clerk/nextjs";
+import type { UseFormReturn } from "react-hook-form";
+import _ from "lodash";
 
-export type LocationFormInputs = z.infer<typeof newLocationFormSchema>;
-export type LocationFormInputNames = typeof locationInputs;
+export type LocationFieldValues = z.infer<typeof newLocationSchema>;
 
-const locationInputs = {
-  name: "locationName",
-  startYear: "locationStartYear",
-  address: "locationAddress",
-  addressSecondary: "locationAddressSecondary",
-  city: "locationCity",
-  state: "locationState",
-  zip: "locationZip",
-  segment: "locationSegment",
-  category: "locationCategory",
-  zipGroup: "locationZipGroup",
-  customGroup: "locationCustomGroup",
-} as const;
-
-const newLocationFormSchema = z.object({
-  [locationInputs.name]: z
-    .string()
-    .min(1, "Please enter a location name")
-    .max(100),
-  [locationInputs.startYear]: z.coerce
+const newLocationSchema = z.object({
+  name: z.string().min(1, "Please enter a location name").max(100),
+  startYear: z.coerce
     .number()
     .gte(1900, { message: "Please a choose a year no earlier than 1900" })
     .lte(new Date().getFullYear(), {
       message: "Please choose the current year or a past year.",
     }),
-  [locationInputs.address]: z
+  address: z
     .string()
     .min(1, "Please enter an address for your organization")
     .max(100),
-  [locationInputs.addressSecondary]: z
-    .string()
-    .min(1, "Please enter an address for your organization")
-    .max(100),
-  [locationInputs.city]: z
-    .string()
-    .min(1, "Please enter a city for your organization")
-    .max(100),
-  [locationInputs.state]: z
+  addressSecondary: z.string().max(100),
+  city: z.string().min(1, "Please enter a city for your organization").max(100),
+  state: z
     .string()
     .length(2, "Please choose a state for your organization")
     .refine((val) => availableStates.includes(val), {
       message: "Only available states are allowed",
     }),
-  [locationInputs.zip]: z
+  zip: z
     .string()
     .length(5, "Please enter a 5-digit ZIP code")
     .regex(/^\d+$/, "Please enter a valid ZIP code"),
-  [locationInputs.segment]: z.number(),
-  [locationInputs.category]: z.number(),
-  [locationInputs.zipGroup]: z.array(
+  segment: z.number(),
+  category: z.number(),
+  zipGroup: z.array(
     z
       .string()
       .length(5, "Please enter a 5-digit ZIP code")
       .regex(/^\d+$/, "Please enter a valid ZIP code")
   ),
-  [locationInputs.customGroup]: z.array(z.number()),
+  customGroup: z.array(z.number()),
 });
-
-const useCreateLocationResolver = () => {
-  const createResolver = useCallback(() => {
-    const { data: segments } = api.segment.getAll.useQuery();
-    const { data: categories } = api.category.getAll.useQuery();
-
-    const refinedSchema = newLocationFormSchema
-      .refine(
-        (values) =>
-          segments?.some((seg) => seg.id == values[locationInputs.segment]),
-        { message: "Please choose a valid segment" }
-      )
-      .refine(
-        (values) =>
-          categories?.some((cat) => cat.id == values[locationInputs.category]),
-        { message: "Please choose a valid category" }
-      );
-
-    return zodResolver(refinedSchema);
-  }, []);
-  return createResolver();
-};
 
 const CreateLocation = () => {
   const { user: clerkUser, isLoaded: isClerkLoaded, isSignedIn } = useUser();
   const { data: user, isFetched: isUserFetched } =
     api.user.getByClerkId.useQuery({ id: clerkUser?.id ?? "" });
+  const { data: segments } = api.segment.getAll.useQuery();
+  const { data: categories } = api.category.getAll.useQuery();
+
+  const [isStepValid, setStepValid] = useState<boolean>(false);
+  const [allValues, setAllValues] = useState<Partial<LocationFieldValues>>({});
 
   const { step, setStep, nextStep, prevStep, hasPrev, hasNext } =
     useMultiStepperState();
-  const resolver = useCreateLocationResolver();
 
-  const locationForm = useForm<LocationFormInputs>({
-    mode: "onBlur",
-    resolver,
-  });
+  const refinedSchema = useMemo(
+    () =>
+      newLocationSchema.extend({
+        segment: newLocationSchema.shape.segment.refine(
+          (segmentId) => segments?.some((seg) => seg.id == segmentId),
+          {
+            message: "Please choose a valid segment",
+          }
+        ),
+        category: newLocationSchema.shape.category.refine(
+          (categoryId) => categories?.some((cat) => cat.id == categoryId),
+          { message: "Please choose a valid category" }
+        ),
+        zipGroup: newLocationSchema.shape.zipGroup,
+        customGroup: newLocationSchema.shape.customGroup,
+      }),
+    [segments, categories]
+  );
 
-  const onSubmit: SubmitHandler<LocationFormInputs> = (values) => {
-    console.log(values);
-  };
+  const subSchemas = useMemo(
+    () => ({
+      locationFormSchema: refinedSchema.omit({
+        segment: true,
+        category: true,
+        zipGroup: true,
+        customGroup: true,
+      }),
+      mainGroupsSchema: refinedSchema.pick({
+        segment: true,
+        category: true,
+        zipGroup: true,
+      }),
+      customGroupSchema: refinedSchema.pick({
+        customGroup: true,
+      }),
+    }),
+    [refinedSchema]
+  );
+
+  function setFormValues(newValues: Partial<LocationFieldValues>) {
+    const values = {...allValues, ...newValues}
+    if (!_.isEqual(allValues, values)) {
+      setAllValues(values)
+    }
+  }
+
+  function goNext() {
+    if (isStepValid) {
+      nextStep();
+    }
+  }
 
   if (!isClerkLoaded || !isUserFetched || !isSignedIn || !user) {
     return null;
@@ -120,30 +121,34 @@ const CreateLocation = () => {
   const steps = createSteps([
     {
       title: "Location Information",
-      component: <CreateLocationForm user={user} inputs={locationInputs} />,
+      component: (
+        <CreateLocationForm
+          user={user}
+          schema={subSchemas.locationFormSchema}
+          allValues={allValues}
+          setAllValues={setFormValues}
+          setStepValid={setStepValid}
+        />
+      ),
     },
     { title: "Category & Zip Codes", component: <span>Step 2</span> },
     { title: "Custom Benchmark Group", component: <span>Step 3</span> },
   ]);
 
   return (
-    <FormProvider {...locationForm}>
-      <form onSubmit={locationForm.handleSubmit(onSubmit)}>
-        <MultiStepper step={step} setStep={setStep}>
-          {steps}
-        </MultiStepper>
-        <div className="flex w-full justify-between">
-          <span>
-            {hasPrev() && <Button onClick={() => prevStep()}>Back</Button>}
-          </span>
-          <span>
-            {hasNext(steps) && (
-              <Button onClick={() => nextStep(steps.length)}>Next</Button>
-            )}
-          </span>
-        </div>
-      </form>
-    </FormProvider>
+    <div>
+      <MultiStepper step={step} setStep={setStep}>
+        {steps}
+      </MultiStepper>
+      <div className="flex w-full justify-between">
+        <span>
+          {hasPrev() && <Button onClick={() => prevStep()}>Back</Button>}
+        </span>
+        <span>
+          {hasNext(steps) && <Button onClick={goNext} disabled={!isStepValid}>Next</Button>}
+        </span>
+      </div>
+    </div>
   );
 };
 

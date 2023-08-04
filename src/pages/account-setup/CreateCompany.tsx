@@ -182,7 +182,10 @@ const CreateCompany: SetupFormPage = (props) => {
         values.companyAddress.indexOf(" ") + 1,
         values.companyAddress.length
       )
-      .concat(", ", values.companyAddressSecondary.trim()),
+      .concat(
+        !!values.companyAddressSecondary.trim() ? ", " : "",
+        values.companyAddressSecondary.trim()
+      ),
     city: values.companyCity,
     state: values.companyState,
     zip: values.companyZip.toString(),
