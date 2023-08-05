@@ -1,4 +1,4 @@
-export const allStates = [
+const states = [
   "AL",
   "AK",
   "AZ",
@@ -51,8 +51,4 @@ export const allStates = [
   "WY",
 ];
 
-export const availableStates = [
-  "CO"
-]
-
-export default availableStates;
+export default states;

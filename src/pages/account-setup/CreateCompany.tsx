@@ -21,50 +21,33 @@ const nameRegex = /^[a-zA-Z]+((-|\s)([a-zA-Z])+)*?$/gm;
 const phoneRegex =
   /^(1|\+1)?(?:-|\s)?\(?(\d{3})\)?(?:\s|-)?(\d{3})(?:-|\s)?(\d{4})$/;
 
-const companyInputs = {
-  repFirstName: "repFirstName",
-  repLastName: "repLastName",
-  repPhone: "repPhone",
-  name: "companyName",
-  address: "companyAddress",
-  addressSecondary: "companyAddressSecondary",
-  city: "companyCity",
-  state: "companyState",
-  zip: "companyZip",
-} as const;
-
 const companyFormSchema = z.object({
-  [companyInputs.repFirstName]: z
+  repFirstName: z
     .string()
     .min(1, "Please enter a first name")
     .max(100)
     .regex(nameRegex, "Please enter a valid first name"),
-  [companyInputs.repLastName]: z
+  repLastName: z
     .string()
     .min(1, "Please enter a last name")
     .max(100)
     .regex(nameRegex, "Please enter a valid last name"),
-  [companyInputs.repPhone]: z
+  repPhone: z
     .string()
     .min(1, "Please enter a phone number")
     .regex(phoneRegex, "Please enter a valid phone number"),
-  [companyInputs.name]: z
+  name: z
     .string()
     .min(1, "Please enter the name of your organization")
     .max(100),
-  [companyInputs.address]: z
+  address: z
     .string()
     .min(1, "Please enter an address for your organization")
     .max(100),
-  [companyInputs.addressSecondary]: z.string().max(100),
-  [companyInputs.city]: z
-    .string()
-    .min(1, "Please enter a city for your organization")
-    .max(100),
-  [companyInputs.state]: z
-    .string()
-    .length(2, "Please choose a state for your organization"),
-  [companyInputs.zip]: z
+  addressSecondary: z.string().max(100),
+  city: z.string().min(1, "Please enter a city for your organization").max(100),
+  state: z.string().length(2, "Please choose a state for your organization"),
+  zip: z
     .string()
     .length(5, "Please enter a 5-digit ZIP code")
     .regex(/^\d+$/, "Please enter a valid ZIP code")
@@ -81,22 +64,14 @@ const PersonalInfo = () => (
     <div className="mx-auto flex flex-col gap-4">
       <div className="flex w-full gap-8">
         <CompanyInput
-          name={companyInputs.repFirstName}
+          name="repFirstName"
           label="First Name"
           className="flex-1"
         />
-        <CompanyInput
-          name={companyInputs.repLastName}
-          label="Last Name"
-          className="flex-1"
-        />
+        <CompanyInput name="repLastName" label="Last Name" className="flex-1" />
       </div>
       <div>
-        <CompanyInput
-          name={companyInputs.repPhone}
-          label="Phone Number"
-          type="tel"
-        />
+        <CompanyInput name="repPhone" label="Phone Number" type="tel" />
       </div>
     </div>
   </section>
@@ -109,22 +84,17 @@ const CompanyInfo = () => {
         Tell Us About Your Company
       </h2>
       <div className="mx-auto flex flex-col gap-4">
-        <CompanyInput name={companyInputs.name} label="Company Name" />
-        <CompanyInput name={companyInputs.address} label="Address" />
+        <CompanyInput name="name" label="Company Name" />
+        <CompanyInput name="address" label="Address" />
         <CompanyInput
-          name={companyInputs.addressSecondary}
+          name="addressSecondary"
           label="Address Line 2 (Optional)"
         />
         <div className="flex gap-4">
-          <CompanyInput
-            name={companyInputs.city}
-            label="City"
-            className="flex-1"
-          />
+          <CompanyInput name="city" label="City" className="flex-1" />
           <FormSelect<CompanyFormInputs>
-            name={companyInputs.state}
+            name="state"
             label="State"
-            defaultValue="CO"
             className="w-2/12 min-w-fit"
           >
             {states.map((state) => (
@@ -133,11 +103,7 @@ const CompanyInfo = () => {
               </SelectItem>
             ))}
           </FormSelect>
-          <CompanyInput
-            name={companyInputs.zip}
-            label="ZIP"
-            className="w-2/12"
-          />
+          <CompanyInput name="zip" label="ZIP" className="w-2/12" />
         </div>
       </div>
     </section>
@@ -171,28 +137,20 @@ const CreateCompany: SetupFormPage = (props) => {
   }
 
   const mapValues = (values: CompanyFormInputs): NewCompany => ({
-    name: values.companyName,
-    buildingNumber: values.companyAddress
+    ...values,
+    buildingNumber: values.address
       .trim()
-      .substring(0, values.companyAddress.indexOf(" "))
+      .substring(0, values.address.indexOf(" "))
       .trim(),
-    street: values.companyAddress
+    street: values.address
       .trim()
-      .substring(
-        values.companyAddress.indexOf(" ") + 1,
-        values.companyAddress.length
-      )
+      .substring(values.address.indexOf(" ") + 1, values.address.length)
       .concat(
-        !!values.companyAddressSecondary.trim() ? ", " : "",
-        values.companyAddressSecondary.trim()
+        !!values.addressSecondary.trim() ? ", " : "",
+        values.addressSecondary.trim()
       ),
-    city: values.companyCity,
-    state: values.companyState,
-    zip: values.companyZip.toString(),
-    repFirstName: values.repFirstName,
-    repLastName: values.repLastName,
-    repEmail: user?.primaryEmailAddress?.toString() || "",
-    repPhone: values.repPhone,
+    zip: values.zip.toString(),
+    repEmail: user.primaryEmailAddress?.emailAddress || "",
   });
 
   const onSubmit: SubmitHandler<CompanyFormInputs> = async (values) => {

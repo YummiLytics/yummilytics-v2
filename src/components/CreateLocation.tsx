@@ -1,18 +1,21 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import z from "zod";
-import availableStates from "~/static/state-codes";
-import { api } from "~/utils/api";
-import MultiStepper, {
-  useMultiStepperState,
-  createSteps,
-} from "./ui/mutlistepper";
-import { Button } from "./ui/button";
-import CreateLocationForm from "./CreateLocation/CreateLocationForm";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useUser } from "@clerk/nextjs";
-import type { UseFormReturn } from "react-hook-form";
-import _ from "lodash";
+import { FormProvider, useForm } from "react-hook-form";
+import { api } from "~/utils/api";
+import FormInput from "./form/FormInput";
+import FormSelect from "./form/FormSelect";
+import { SelectItem } from "./ui/select";
+import { defaultCompany } from "~/types/defaults";
+import states from "~/static/state-codes";
 
-export type LocationFieldValues = z.infer<typeof newLocationSchema>;
+type CreateLocationProps = {
+  useCompanyDefaults?: boolean;
+}
+type LocationFieldValues = z.infer<typeof newLocationSchema>;
+
+
 
 const newLocationSchema = z.object({
   name: z.string().min(1, "Please enter a location name").max(100),
@@ -31,7 +34,7 @@ const newLocationSchema = z.object({
   state: z
     .string()
     .length(2, "Please choose a state for your organization")
-    .refine((val) => availableStates.includes(val), {
+    .refine((val) => states.includes(val), {
       message: "Only available states are allowed",
     }),
   zip: z
@@ -40,27 +43,16 @@ const newLocationSchema = z.object({
     .regex(/^\d+$/, "Please enter a valid ZIP code"),
   segment: z.number(),
   category: z.number(),
-  zipGroup: z.array(
-    z
-      .string()
-      .length(5, "Please enter a 5-digit ZIP code")
-      .regex(/^\d+$/, "Please enter a valid ZIP code")
-  ),
-  customGroup: z.array(z.number()),
 });
 
-const CreateLocation = () => {
+const CreateLocation = ({ useCompanyDefaults = false }: CreateLocationProps) => {
   const { user: clerkUser, isLoaded: isClerkLoaded, isSignedIn } = useUser();
   const { data: user, isFetched: isUserFetched } =
     api.user.getByClerkId.useQuery({ id: clerkUser?.id ?? "" });
   const { data: segments } = api.segment.getAll.useQuery();
   const { data: categories } = api.category.getAll.useQuery();
 
-  const [isStepValid, setStepValid] = useState<boolean>(false);
-  const [allValues, setAllValues] = useState<Partial<LocationFieldValues>>({});
-
-  const { step, setStep, nextStep, prevStep, hasPrev, hasNext } =
-    useMultiStepperState();
+  const userCompany = user?.company || defaultCompany;
 
   const refinedSchema = useMemo(
     () =>
@@ -75,80 +67,79 @@ const CreateLocation = () => {
           (categoryId) => categories?.some((cat) => cat.id == categoryId),
           { message: "Please choose a valid category" }
         ),
-        zipGroup: newLocationSchema.shape.zipGroup,
-        customGroup: newLocationSchema.shape.customGroup,
       }),
     [segments, categories]
   );
 
-  const subSchemas = useMemo(
-    () => ({
-      locationFormSchema: refinedSchema.omit({
-        segment: true,
-        category: true,
-        zipGroup: true,
-        customGroup: true,
-      }),
-      mainGroupsSchema: refinedSchema.pick({
-        segment: true,
-        category: true,
-        zipGroup: true,
-      }),
-      customGroupSchema: refinedSchema.pick({
-        customGroup: true,
-      }),
-    }),
-    [refinedSchema]
-  );
+  const locationForm = useForm<LocationFieldValues>({
+    mode: "onBlur",
+    resolver: zodResolver(refinedSchema),
+  });
 
-  function setFormValues(newValues: Partial<LocationFieldValues>) {
-    const values = {...allValues, ...newValues}
-    if (!_.isEqual(allValues, values)) {
-      setAllValues(values)
-    }
-  }
+  const defaultValues: Omit<LocationFieldValues, "startYear" | "segment" | "category"> = useMemo(() => ({
+    name: useCompanyDefaults ? userCompany?.name || "" : "",
+    address: useCompanyDefaults ? `${userCompany.buildingNumber || ""} ${userCompany.street?.split(",").shift()?.trim() || userCompany.street || ""}` : "",
+    addressSecondary: useCompanyDefaults ? userCompany.street?.split(",").slice(1).join(",").trim() || "" : "",
+    city: useCompanyDefaults ? userCompany.city || "" : "",
+    state: useCompanyDefaults ? userCompany.state || "" : "",
+    zip: useCompanyDefaults ? userCompany.zip || "" : ""
+  }), [useCompanyDefaults, userCompany])
 
-  function goNext() {
-    if (isStepValid) {
-      nextStep();
+  useEffect(() => {
+    if (isUserFetched && useCompanyDefaults && !!user?.company) {
+      locationForm.reset(defaultValues)
     }
-  }
+  }, [defaultValues, isUserFetched, locationForm, useCompanyDefaults, user?.company])
 
   if (!isClerkLoaded || !isUserFetched || !isSignedIn || !user) {
     return null;
   }
 
-  const steps = createSteps([
-    {
-      title: "Location Information",
-      component: (
-        <CreateLocationForm
-          user={user}
-          schema={subSchemas.locationFormSchema}
-          allValues={allValues}
-          setAllValues={setFormValues}
-          setStepValid={setStepValid}
-        />
-      ),
-    },
-    { title: "Category & Zip Codes", component: <span>Step 2</span> },
-    { title: "Custom Benchmark Group", component: <span>Step 3</span> },
-  ]);
-
+  const LocationInput = FormInput<LocationFieldValues>;
   return (
-    <div>
-      <MultiStepper step={step} setStep={setStep}>
-        {steps}
-      </MultiStepper>
-      <div className="flex w-full justify-between">
-        <span>
-          {hasPrev() && <Button onClick={() => prevStep()}>Back</Button>}
-        </span>
-        <span>
-          {hasNext(steps) && <Button onClick={goNext} disabled={!isStepValid}>Next</Button>}
-        </span>
+    <FormProvider {...locationForm}>
+      <div className="flex flex-col gap-5 p-4 pt-6">
+        <div className="flex gap-4">
+          <LocationInput
+            name={"name"}
+            label="Location Name"
+            className="flex-1"
+            defaultValue={defaultValues.name}
+          />
+          <LocationInput
+            name={"startYear"}
+            type="number"
+            label="Year of Establishment"
+            className="w-3/12"
+          />
+        </div>
+        <LocationInput name={"address"} label="Address" defaultValue={defaultValues.address}/>
+        <LocationInput
+          name={"addressSecondary"}
+          label="Address Line 2 (Optional)"
+          defaultValue={defaultValues.addressSecondary}
+        />
+        <div className="flex gap-4">
+          <LocationInput name={"city"} label="City" className="flex-1" defaultValue={defaultValues.city}/>
+          <FormSelect<LocationFieldValues>
+            name={"state"}
+            label="State"
+            className="w-2/12 min-w-fit"
+            defaultValue={defaultValues.state}
+          >
+            {states.map((state) => (
+              <SelectItem key={state} value={state}>
+                {state}
+              </SelectItem>
+            ))}
+          </FormSelect>
+          <LocationInput name={"zip"} label="ZIP" className="w-2/12" defaultValue={defaultValues.zip}/>
+        </div>
+        <div className="flex gap-4">
+          
+        </div>
       </div>
-    </div>
+    </FormProvider>
   );
 };
 
