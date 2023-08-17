@@ -17,7 +17,12 @@ export const userRouter = createTRPCRouter({
           clerkId: input.id,
         },
         include: {
-          company: true,
+          company: {
+            include: {
+              locations: true
+            }
+          },
+          locations: true
         },
       });
     }),

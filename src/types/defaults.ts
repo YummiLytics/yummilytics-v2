@@ -1,6 +1,6 @@
-import type { Company } from "@prisma/client";
+import type { FullUser, FullCompany } from ".";
 
-export const defaultCompany: Company = {
+export const defaultCompany: FullCompany = {
   id: -1,
   name: null,
   buildingNumber: null,
@@ -12,4 +12,14 @@ export const defaultCompany: Company = {
   repLastName: null,
   repPhone: null,
   repEmail: null,
+  user: null,
+  locations: []
 };
+
+export const defaultUser: FullUser = {
+  id: -1,
+  clerkId: null,
+  companyId: null,
+  company: defaultCompany,
+  locations: []
+}

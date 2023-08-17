@@ -33,7 +33,7 @@ const AccountSetupPage: NextPage = () => {
 
   useEffect(() => {
     if (isReady && currentPage == null) {
-      setCurrentPage(SetupPage.CREATE_COMPANY);
+      setCurrentPage(SetupPage.CREATE_LOCATION);
     }
   }, [isReady, currentPage]);
 

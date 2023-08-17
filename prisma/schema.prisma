@@ -1,6 +1,5 @@
 generator client {
     provider        = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
@@ -60,8 +59,8 @@ model dimCard {
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Category {
     id                  Int       @id(map: "PK_dimCategory") @default(autoincrement()) @map("CatKey")
-    Categories          String?   @map("Categories") @db.VarChar(50)
-    Description         String?   @map("Description") @db.VarChar(50)
+    name                String?   @map("Categories") @db.VarChar(50)
+    description         String?   @map("Description") @db.VarChar(50)
     segmentWithCategory SegXCat[]
 
     @@map("dimCategory")
@@ -79,27 +78,29 @@ model City {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model Company {
-    id             Int     @id(map: "PK_dimCompany") @default(autoincrement()) @map("CompanyKey")
-    name           String? @map("CompanyName") @db.VarChar(50)
-    buildingNumber String? @map("AddressNumber") @db.VarChar(50)
-    street         String? @map("AddressStreet") @db.VarChar(50)
-    city           String? @map("AddressCity") @db.VarChar(50)
-    state          String? @map("AddressState") @db.VarChar(50)
-    zip            String? @map("AddressZip") @db.VarChar(50)
-    repFirstName   String? @map("RepFirstName") @db.VarChar(50)
-    repLastName    String? @map("RepLastName") @db.VarChar(50)
-    repPhone       String? @map("RepPhone") @db.VarChar(50)
-    repEmail       String? @map("RepEmail") @db.VarChar(50)
-    users          User[]
+    id             Int        @id(map: "PK_dimCompany") @default(autoincrement()) @map("CompanyKey")
+    name           String?    @map("CompanyName") @db.VarChar(50)
+    buildingNumber String?    @map("AddressNumber") @db.VarChar(50)
+    street         String?    @map("AddressStreet") @db.VarChar(50)
+    city           String?    @map("AddressCity") @db.VarChar(50)
+    state          String?    @map("AddressState") @db.VarChar(50)
+    zip            String?    @map("AddressZip") @db.VarChar(50)
+    repFirstName   String?    @map("RepFirstName") @db.VarChar(50)
+    repLastName    String?    @map("RepLastName") @db.VarChar(50)
+    repPhone       String?    @map("RepPhone") @db.VarChar(50)
+    repEmail       String?    @map("RepEmail") @db.VarChar(50)
+    user           User       @relation(fields: [id], references: [companyId])
+    locations      Location[] 
 
     @@map("dimCompany")
 }
 
 model User {
-    id        Int      @id(map: "PK_dimUser") @default(autoincrement())
-    clerkId   String?  @map("clerk_id") @db.VarChar(100)
-    companyId Int?     @unique @map("CompanyKey")
-    company   Company? @relation(fields: [companyId], references: [id])
+    id        Int        @id(map: "PK_dimUser") @default(autoincrement())
+    clerkId   String?    @map("clerk_id") @db.VarChar(100)
+    companyId Int?       @unique @map("CompanyKey")
+    company   Company?
+    locations Location[]
 
     @@map("dimUser")
 }
@@ -148,6 +149,8 @@ model Location {
     categoryId     Int?      @map("CatKey")
     segmentId      Int?      @map("SegKey")
     startDate      DateTime? @map("OpStartDate") @db.Date
+    company        Company?  @relation(fields: [companyId], references: [id])
+    user           User?     @relation(fields: [companyId], references: [companyId], map: "dimLocation_usercompany_fkey", onDelete: NoAction, onUpdate: NoAction)
 
     @@map("dimLocation")
 }

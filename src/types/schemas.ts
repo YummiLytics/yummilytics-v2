@@ -30,8 +30,8 @@ export const LocationSchema = z.object({
   state: z.string(),
   zip: z.string(),
   index: z.string(),
-  zipGroupId: z.number(),
-  customGroupId: z.number(),
+  zipGroupId: z.number().nullish(),
+  customGroupId: z.number().nullish(),
   categoryId: z.number(),
   segmentId: z.number(),
   startDate: z.date()
