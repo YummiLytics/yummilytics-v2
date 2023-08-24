@@ -7,19 +7,18 @@ const SignUpPage: NextPage = () => {
 
   if (!isLoaded) return null;
 
-  if (!isSignedIn) {
-    return (
-      <div className="flex h-full w-full items-center justify-center md:py-16">
-        <SignUp />
-      </div>
-    );
-  } else {
+  if (isSignedIn) {
     Router.push("/dashboard").catch((err) => {
       console.log(err);
     });
+    return null;
   }
 
-  return null;
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <SignUp />
+    </div>
+  );
 };
 
 export default SignUpPage;
