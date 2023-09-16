@@ -7,10 +7,24 @@ export const userRouter = createTRPCRouter({
     return await ctx.prisma.user.findMany();
   }),
 
+  getCurrentUser: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.user.findFirst({
+      where: {
+        clerkId: ctx.userId,
+      },
+      include: {
+        company: {
+          include: {
+            locations: true,
+          },
+        },
+        locations: true,
+      },
+    });
+  }),
+
   getByClerkId: publicProcedure
-    .input(
-      z.object({ id: z.string() })
-    )
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.prisma.user.findFirst({
         where: {
@@ -19,10 +33,10 @@ export const userRouter = createTRPCRouter({
         include: {
           company: {
             include: {
-              locations: true
-            }
+              locations: true,
+            },
           },
-          locations: true
+          locations: true,
         },
       });
     }),
