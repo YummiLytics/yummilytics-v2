@@ -89,7 +89,7 @@ model Company {
     repLastName    String?    @map("RepLastName") @db.VarChar(50)
     repPhone       String?    @map("RepPhone") @db.VarChar(50)
     repEmail       String?    @map("RepEmail") @db.VarChar(50)
-    user           User       @relation(fields: [id], references: [companyId])
+    user           User?       @relation(fields: [id], references: [companyId])
     locations      Location[] 
 
     @@map("dimCompany")
